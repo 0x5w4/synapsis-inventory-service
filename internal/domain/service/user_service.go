@@ -4,7 +4,7 @@ import (
 	"context"
 	"goapptemp/config"
 	"goapptemp/internal/adapter/repository"
-	mysqlrepository "goapptemp/internal/adapter/repository/mysql"
+	postgresrepository "goapptemp/internal/adapter/repository/postgres"
 	"goapptemp/internal/domain/entity"
 	"goapptemp/internal/shared"
 	"goapptemp/internal/shared/exception"
@@ -68,7 +68,7 @@ func (s *userService) Create(ctx context.Context, req *CreateUserRequest) (*enti
 
 	var user *entity.User
 
-	atomicOperation := func(txRepo mysqlrepository.MySQLRepository) error {
+	atomicOperation := func(txRepo postgresrepository.PostgresRepository) error {
 		var err error
 
 		user, err = txRepo.User().Create(ctx, req.User)
@@ -85,11 +85,11 @@ func (s *userService) Create(ctx context.Context, req *CreateUserRequest) (*enti
 
 		return nil
 	}
-	if err := s.repo.MySQL().Atomic(ctx, s.config, atomicOperation); err != nil {
+	if err := s.repo.Postgres().Atomic(ctx, s.config, atomicOperation); err != nil {
 		return nil, serror.TranslateRepoError(err)
 	}
 
-	user, err = s.repo.MySQL().User().FindByID(ctx, user.ID)
+	user, err = s.repo.Postgres().User().FindByID(ctx, user.ID)
 	if err != nil {
 		return nil, serror.TranslateRepoError(err)
 	}
@@ -99,7 +99,7 @@ func (s *userService) Create(ctx context.Context, req *CreateUserRequest) (*enti
 
 type UpdateUserRequest struct {
 	AuthParams *AuthParams
-	Update     *mysqlrepository.UpdateUserPayload
+	Update     *postgresrepository.UpdateUserPayload
 }
 
 func (s *userService) Update(ctx context.Context, req *UpdateUserRequest) (*entity.User, error) {
@@ -137,7 +137,7 @@ func (s *userService) Update(ctx context.Context, req *UpdateUserRequest) (*enti
 
 	var user *entity.User
 
-	atomicOperation := func(txRepo mysqlrepository.MySQLRepository) error {
+	atomicOperation := func(txRepo postgresrepository.PostgresRepository) error {
 		var err error
 
 		user, err = txRepo.User().Update(ctx, req.Update)
@@ -167,11 +167,11 @@ func (s *userService) Update(ctx context.Context, req *UpdateUserRequest) (*enti
 
 		return nil
 	}
-	if err := s.repo.MySQL().Atomic(ctx, s.config, atomicOperation); err != nil {
+	if err := s.repo.Postgres().Atomic(ctx, s.config, atomicOperation); err != nil {
 		return nil, serror.TranslateRepoError(err)
 	}
 
-	user, err = s.repo.MySQL().User().FindByID(ctx, user.ID)
+	user, err = s.repo.Postgres().User().FindByID(ctx, user.ID)
 	if err != nil {
 		return nil, serror.TranslateRepoError(err)
 	}
@@ -206,7 +206,7 @@ func (s *userService) Delete(ctx context.Context, req *DeleteUserRequest) error 
 		return exception.New(exception.TypeForbidden, exception.CodeForbidden, "User cannot delete their own account")
 	}
 
-	if err := s.repo.MySQL().User().Delete(ctx, req.UserID); err != nil {
+	if err := s.repo.Postgres().User().Delete(ctx, req.UserID); err != nil {
 		return serror.TranslateRepoError(err)
 	}
 
@@ -215,7 +215,7 @@ func (s *userService) Delete(ctx context.Context, req *DeleteUserRequest) error 
 
 type FindUserRequest struct {
 	AuthParams *AuthParams
-	UserFilter *mysqlrepository.FilterUserPayload
+	UserFilter *postgresrepository.FilterUserPayload
 }
 
 func (s *userService) Find(ctx context.Context, req *FindUserRequest) ([]*entity.User, int, error) {
@@ -232,7 +232,7 @@ func (s *userService) Find(ctx context.Context, req *FindUserRequest) ([]*entity
 		return nil, 0, exception.New(exception.TypeForbidden, exception.CodeForbidden, "Not allowed to access")
 	}
 
-	users, totalCount, err := s.repo.MySQL().User().Find(ctx, req.UserFilter)
+	users, totalCount, err := s.repo.Postgres().User().Find(ctx, req.UserFilter)
 	if err != nil {
 		return nil, 0, serror.TranslateRepoError(err)
 	}
@@ -267,7 +267,7 @@ func (s *userService) FindOne(ctx context.Context, req *FindOneUserRequest) (*en
 		return nil, exception.New(exception.TypeBadRequest, exception.CodeBadRequest, "User ID required for find one")
 	}
 
-	user, err := s.repo.MySQL().User().FindByID(ctx, req.UserID)
+	user, err := s.repo.Postgres().User().FindByID(ctx, req.UserID)
 	if err != nil {
 		return nil, serror.TranslateRepoError(err)
 	}

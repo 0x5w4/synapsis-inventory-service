@@ -26,12 +26,16 @@ type Service interface {
 	Notification() NotificationService
 	Webhook() WebhookService
 	StaleTaskDetector() StaleTaskDetector
+	Product() ProductService
+	Reservation() ReservationService
 }
 
 type service struct {
 	tokenManager          token.Token
 	authService           AuthService
 	userService           UserService
+	productService        ProductService
+	reservationService    ReservationService
 	clientService         ClientService
 	roleService           RoleService
 	supportFeatureService SupportFeatureService
@@ -67,6 +71,8 @@ func NewService(
 	return &service{
 		authService:           authService,
 		userService:           NewUserService(config, repo, logger, authService),
+		productService:        NewProductService(config, repo, logger),
+		reservationService:    NewReservationService(config, repo, logger),
 		clientService:         NewClientService(config, repo, logger, authService, pubsubService),
 		roleService:           NewRoleService(config, repo, logger, authService),
 		supportFeatureService: NewSupportFeatureService(config, repo, logger, authService, validate),
@@ -126,3 +132,12 @@ func (s *service) Webhook() WebhookService {
 func (s *service) StaleTaskDetector() StaleTaskDetector {
 	return s.staleTaskDetector
 }
+
+func (s *service) Product() ProductService {
+	return s.productService
+}
+
+func (s *service) Reservation() ReservationService {
+	return s.reservationService
+}
+ 

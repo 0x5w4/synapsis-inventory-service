@@ -2,24 +2,25 @@ package repository
 
 import (
 	"goapptemp/config"
-	mysqlrepository "goapptemp/internal/adapter/repository/mysql"
+	postgresrepository "goapptemp/internal/adapter/repository/postgres"
 	redisrepository "goapptemp/internal/adapter/repository/redis"
 	"goapptemp/pkg/logger"
 )
 
+
 type Repository interface {
-	MySQL() mysqlrepository.MySQLRepository
+	Postgres() postgresrepository.PostgresRepository
 	Redis() redisrepository.RedisRepository
 	Close() error
 }
 
 type repository struct {
-	mysql mysqlrepository.MySQLRepository
-	redis redisrepository.RedisRepository
+	postgres postgresrepository.PostgresRepository
+	redis    redisrepository.RedisRepository
 }
 
 func NewRepository(config *config.Config, logger logger.Logger) (Repository, error) {
-	mysqlRepo, err := mysqlrepository.NewMySQLRepository(config, logger)
+	postgresRepo, err := postgresrepository.NewPostgresRepository(config, logger)
 	if err != nil {
 		return nil, err
 	}
@@ -30,13 +31,13 @@ func NewRepository(config *config.Config, logger logger.Logger) (Repository, err
 	}
 
 	return &repository{
-		mysql: mysqlRepo,
-		redis: redisRepo,
+		postgres: postgresRepo,
+		redis:    redisRepo,
 	}, nil
 }
 
-func (r *repository) MySQL() mysqlrepository.MySQLRepository {
-	return r.mysql
+func (r *repository) Postgres() postgresrepository.PostgresRepository {
+	return r.postgres
 }
 
 func (r *repository) Redis() redisrepository.RedisRepository {
