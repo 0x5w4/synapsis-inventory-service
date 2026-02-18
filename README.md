@@ -1,0 +1,1 @@
+# synapsis-inventory-service
