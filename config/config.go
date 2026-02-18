@@ -8,16 +8,10 @@ import (
 )
 
 type Config struct {
-	App       *AppConfig
-	Tracer    *TracerConfig
-	HTTP      *HTTPConfig
-	MySQL     *DatabaseConfig
-	Token     *TokenConfig
-	Pubsub    *PubsubConfig
-	Drive     *DriveConfig
-	StaleTask *StaleTaskConfig
-	Redis     *RedisConfig
-	Gmail     *GmailConfig
+	App      *AppConfig
+	Tracer   *TracerConfig
+	Postgres *DatabaseConfig
+	Grpc     *GRPCConfig
 }
 
 type AppConfig struct {
@@ -49,46 +43,9 @@ type DatabaseConfig struct {
 	Debug              bool
 }
 
-type RedisConfig struct {
-	Host     string
-	Port     string
-	Password string
-	DB       int
-}
-
-type HTTPConfig struct {
-	Host               string
-	Port               int
-	BasePath           string
-	DomainName         string
-	EnableMigrationAPI bool
-}
-
-type TokenConfig struct {
-	AccessSecretKey      string
-	AccessTokenDuration  int // in minutes
-	RefreshSecretKey     string
-	RefreshTokenDuration int // in minutes
-}
-
-type PubsubConfig struct {
-	ProjectID string
-	TopicID   string
-	CredFile  string
-}
-
-type DriveConfig struct {
-	IconFolderID string
-}
-
-type GmailConfig struct {
-	CredFile string
-	Sender   string
-}
-
-type StaleTaskConfig struct {
-	MaxStaleTime  int
-	CheckInterval int
+type GRPCConfig struct {
+	Host string
+	Port int
 }
 
 func LoadConfig(envPath string) (*Config, error) {
@@ -124,50 +81,19 @@ func LoadConfig(envPath string) (*Config, error) {
 			Environment:    viper.GetString("ELASTIC_APM_ENVIRONMENT"),
 			NodeName:       viper.GetString("ELASTIC_APM_NODE_NAME"),
 		},
-		HTTP: &HTTPConfig{
-			Host:               viper.GetString("HTTP_HOST"),
-			Port:               viper.GetInt("HTTP_PORT"),
-			BasePath:           viper.GetString("HTTP_BASE_PATH"),
-			DomainName:         viper.GetString("HTTP_DOMAIN_NAME"),
-			EnableMigrationAPI: viper.GetBool("HTTP_ENABLE_MIGRATION_API"),
+		Postgres: &DatabaseConfig{
+			DSN:                viper.GetString("POSTGRES_DSN"),
+			MigrateDSN:         viper.GetString("POSTGRES_MIGRATE_DSN"),
+			DBName:             viper.GetString("POSTGRES_DB_NAME"),
+			MaxOpenConns:       viper.GetInt("POSTGRES_MAX_OPEN_CONNS"),
+			MaxIdleConns:       viper.GetInt("POSTGRES_MAX_IDLE_CONNS"),
+			ConnMaxLifetime:    viper.GetInt("POSTGRES_CONN_MAX_LIFETIME"),
+			SlowQueryThreshold: viper.GetInt("POSTGRES_SLOW_QUERY_THRESHOLD"),
+			Debug:              viper.GetBool("POSTGRES_DEBUG"),
 		},
-		MySQL: &DatabaseConfig{
-			DSN:                viper.GetString("MYSQL_DSN"),
-			MigrateDSN:         viper.GetString("MYSQL_MIGRATE_DSN"),
-			DBName:             viper.GetString("MYSQL_DB_NAME"),
-			MaxOpenConns:       viper.GetInt("MYSQL_MAX_OPEN_CONNS"),
-			MaxIdleConns:       viper.GetInt("MYSQL_MAX_IDLE_CONNS"),
-			ConnMaxLifetime:    viper.GetInt("MYSQL_CONN_MAX_LIFETIME"),
-			SlowQueryThreshold: viper.GetInt("MYSQL_SLOW_QUERY_THRESHOLD"),
-			Debug:              viper.GetBool("MYSQL_DEBUG"),
-		},
-		Redis: &RedisConfig{
-			Host:     viper.GetString("REDIS_HOST"),
-			Port:     viper.GetString("REDIS_PORT"),
-			Password: viper.GetString("REDIS_PASSWORD"),
-			DB:       viper.GetInt("REDIS_DB"),
-		},
-		Token: &TokenConfig{
-			AccessSecretKey:      viper.GetString("ACCESS_TOKEN_SECRET_KEY"),
-			AccessTokenDuration:  viper.GetInt("ACCESS_TOKEN_DURATION"),
-			RefreshSecretKey:     viper.GetString("REFRESH_TOKEN_SECRET_KEY"),
-			RefreshTokenDuration: viper.GetInt("REFRESH_TOKEN_DURATION"),
-		},
-		Pubsub: &PubsubConfig{
-			ProjectID: viper.GetString("PUBSUB_PROJECT_ID"),
-			TopicID:   viper.GetString("PUBSUB_TOPIC_ID"),
-			CredFile:  viper.GetString("PUBSUB_CRED_FILE"),
-		},
-		Drive: &DriveConfig{
-			IconFolderID: viper.GetString("DRIVE_ICON_FOLDER_ID"),
-		},
-		StaleTask: &StaleTaskConfig{
-			MaxStaleTime:  viper.GetInt("STALE_TASK_MAX_STALE_TIME"),
-			CheckInterval: viper.GetInt("STALE_TASK_CHECK_INTERVAL"),
-		},
-		Gmail: &GmailConfig{
-			CredFile: viper.GetString("GMAIL_CRED_FILE"),
-			Sender:   viper.GetString("GMAIL_SENDER"),
+		Grpc: &GRPCConfig{
+			Host: viper.GetString("GRPC_HOST"),
+			Port: viper.GetInt("GRPC_PORT"),
 		},
 	}
 

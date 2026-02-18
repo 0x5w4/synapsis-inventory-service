@@ -4,30 +4,28 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"goapptemp/config"
-	"goapptemp/internal/adapter/api/rest"
-	"goapptemp/internal/adapter/pubsub"
-	"goapptemp/internal/adapter/repository"
-	"goapptemp/internal/domain/service"
-	"goapptemp/internal/shared/token"
-	"goapptemp/pkg/apmtracer"
-	"goapptemp/pkg/bundb"
-	"goapptemp/pkg/logger"
+	"inventory-service/config"
+	"inventory-service/internal/adapter/repository"
+	"inventory-service/internal/domain/service"
+	"inventory-service/pkg/apmtracer"
+	"inventory-service/pkg/bundb"
+	"inventory-service/pkg/logger"
+	"net"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
-	"time"
 
-	pubsubClient "goapptemp/pkg/pubsub"
+	"inventory-service/proto/pb"
+
+	"google.golang.org/grpc"
 )
 
 type App struct {
 	config     *config.Config
-	restServer rest.Server
+	grpcServer grpc.Server
 	logger     logger.Logger
 	tracer     apmtracer.Tracer
-	pubsub     pubsubClient.Pubsub
 }
 
 func NewApp(config *config.Config, logger logger.Logger) (*App, error) {
@@ -72,65 +70,41 @@ func (a *App) Run() error {
 		return fmt.Errorf("failed to setup repository: %w", err)
 	}
 
-	// Initialize pubsub
-	var publisher pubsub.Publisher
-	if a.config.App.UsePubsub {
-		a.pubsub, err = pubsubClient.NewPubsub(ctx, a.config.Pubsub.ProjectID, a.config.Pubsub.CredFile)
-		if err != nil {
-			return fmt.Errorf("failed to setup pubsub client: %w", err)
-		}
-
-		publisher, err = pubsub.NewPublisher(a.logger, a.pubsub, a.config.Pubsub.TopicID)
-		if err != nil {
-			return fmt.Errorf("failed to setup pubsub publisher: %w", err)
-		}
-	}
-
-	// Initialize token
-	token, err := token.NewJwtToken(
-		a.config.Token.AccessSecretKey,
-		a.config.Token.RefreshSecretKey,
-		time.Duration(a.config.Token.AccessTokenDuration)*time.Minute,
-		time.Duration(a.config.Token.RefreshTokenDuration)*time.Minute,
-	)
-	if err != nil {
-		return fmt.Errorf("failed to create token manager: %w", err)
-	}
-
 	// Initialize service
-	service, err := service.NewService(a.config, repo, a.logger, token, publisher)
+	service, err := service.NewService(a.config, repo, a.logger)
 	if err != nil {
 		return fmt.Errorf("failed to setup service: %w", err)
 	}
 
-	wg.Go(func() {
-		service.StaleTaskDetector().Start(ctx)
-	})
+	// Initialize and start gRPC server with sophisticated setup
+	grpcServer := grpc.NewServer()
 
-	// Initialize and start REST server
-	a.restServer, err = rest.NewEchoServer(a.config, a.logger, token, service, repo)
+	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", a.config.Grpc.Host, a.config.Grpc.Port))
 	if err != nil {
-		return fmt.Errorf("failed to setup server: %w", err)
+		return fmt.Errorf("failed to create listener: %w", err)
 	}
 
-	if err := a.restServer.Start(); err != nil {
-		return fmt.Errorf("failed to start server: %w", err)
-	}
+	go func() {
+		if err := grpcServer.Serve(listener); err != nil {
+			a.logger.Error().Err(err).Msg("Failed to start gRPC server")
+			cancel()
+		}
+	}()
 
-	a.logger.Info().Msgf("Server started at %s:%d", a.config.HTTP.Host, a.config.HTTP.Port)
+	a.logger.Info().Msgf("Server started at %s:%d", a.config.Grpc.Host, a.config.Grpc.Port)
+
+	// Register gRPC services with proper implementations
+	pb.RegisterInventoryServiceServer(grpcServer, service)
 
 	// Wait for shutdown signal
 	<-ctx.Done()
 	a.logger.Info().Msg("Shutdown signal received, starting graceful shutdown...")
 
-	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 15*time.Second)
-	defer shutdownCancel()
-
-	// Shutdown REST server
-	if err := a.restServer.Shutdown(shutdownCtx); err != nil {
-		a.logger.Error().Err(err).Msg("Failed to gracefully shutdown REST server")
+	// Shutdown gRPC server
+	if err := grpcServer.Shutdown(); err != nil {
+		a.logger.Error().Err(err).Msg("Failed to gracefully shutdown gRPC server")
 	} else {
-		a.logger.Info().Msg("REST server shut down gracefully")
+		a.logger.Info().Msg("gRPC server shut down gracefully")
 	}
 
 	// Wait for background tasks to finish
@@ -143,15 +117,6 @@ func (a *App) Run() error {
 		a.logger.Error().Err(err).Msg("Failed to gracefully close repository")
 	} else {
 		a.logger.Info().Msg("Repository closed gracefully")
-	}
-
-	// Shutdown pubsub client
-	if a.pubsub != nil {
-		if err := a.pubsub.Shutdown(); err != nil {
-			a.logger.Error().Err(err).Msg("Failed to gracefully shutdown PubSub client")
-		} else {
-			a.logger.Info().Msg("PubSub client shut down gracefully")
-		}
 	}
 
 	a.tracer.Shutdown()

@@ -73,7 +73,7 @@ help: ## ✨ Show this help message
 lint: ## 🧐 Run golangci-lint to analyze source code
 	@rm -rf ./reports/* 2>/dev/null || true
 	@command -v golangci-lint >/dev/null 2>&1 || \
-		(echo "--> golangci-lint not found. Please run 'go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest' to install." && exit 1)
+		(echo "--> golangci-lint not found. Please run 'go install github.com/golangci-lint/golangci-lint/cmd/golangci-lint@latest' to install." && exit 1)
 	@echo "Running golangci-lint..."
 	@golangci-lint run -v --fix --timeout=5m ./...
 
@@ -162,59 +162,32 @@ mod-download: ## 📥 Download Go module dependencies
 
 
 # ====================================================================================
-# DATABASE MANAGEMENT (MySQL)
+# DATABASE MANAGEMENT (PostgreSQL)
 # ====================================================================================
 
-mysql-up: ## 🐘 Start the MySQL database container
-	@echo "Starting MySQL container using .env configuration..."
-	docker run --name my-mysql \
-	  -e MYSQL_ROOT_PASSWORD=$(MYSQL_ROOT_PASSWORD) \
-	  -e MYSQL_DATABASE=$(MYSQL_DATABASE) \
-	  -e MYSQL_USER=$(MYSQL_USER) \
-	  -e MYSQL_PASSWORD=$(MYSQL_PASSWORD) \
-	  -p 3306:3306 \
-	  -d mysql:8
+postgres-up: ## 🐘 Start the PostgreSQL database container
+	@echo "Starting PostgreSQL container using .env configuration..."
+	docker run --name postgres-db \
+	  -e POSTGRES_USER=$(POSTGRES_USER) \
+	  -e POSTGRES_PASSWORD=$(POSTGRES_PASSWORD) \
+	  -e POSTGRES_DB=$(POSTGRES_DB) \
+	  -p 5432:5432 \
+	  -d postgres:16
 
-mysql-down: ## 🐘 Stop and remove the MySQL database container
-	@echo "Stopping and removing MySQL container..."
-	docker stop my-mysql || true
-	docker rm my-mysql || true
+postgres-down: ## 🐘 Stop and remove the PostgreSQL database container
+	@echo "Stopping and removing PostgreSQL container..."
+	docker stop postgres-db || true
+	docker rm postgres-db || true
 
-mysql-logs: ## 🐘 View the logs of the MySQL container
-	@echo "Following MySQL logs..."
-	docker logs -f my-mysql
-
-mysql-connect: ## 🐘 Connect to the MySQL database using the mysql client
-	@echo "Connecting to MySQL database..."
-	docker exec -it my-mysql mysql -u $(MYSQL_USER) -p$(MYSQL_PASSWORD) $(MYSQL_DATABASE)
+postgres-logs: ## 🐘 View the logs of the PostgreSQL container
+	@echo "Following PostgreSQL logs..."
+	docker logs -f postgres-db
 
 
 # ====================================================================================
-# DATABASE MANAGEMENT (TiDB)
+# PROTOBUF COMPILATION
 # ====================================================================================
 
-tidb-up: ## 🐯 Start the TiDB database container
-	@echo "Starting TiDB container using default configuration..."
-	docker run --name tidb-server \
-	  -p 4000:4000 \
-	  -p 10080:10080 \
-	  -d pingcap/tidb:latest
-
-	@echo "Waiting for TiDB to be ready..."
-	@sleep 5
-
-	@echo "Creating database '$(MYSQL_DB_NAME)' if not exists..."
-	mysqlsh --sql -u root -h 127.0.0.1 -P 4000 -e "CREATE DATABASE IF NOT EXISTS $(MYSQL_DB_NAME);"
-
-tidb-down: ## 🐯 Stop and remove the TiDB database container
-	@echo "Stopping and removing TiDB container..."
-	docker stop tidb-server || true
-	docker rm tidb-server || true
-
-tidb-logs: ## 🐯 View the logs of the TiDB container
-	@echo "Following TiDB logs..."
-	docker logs -f tidb-server
-
-tidb-connect: ## 🐯 Connect to the TiDB database using MySQL Shell
-	@echo "Connecting to TiDB database on port 4000 using mysqlsh..."
-	mysqlsh --sql -u root -h 127.0.0.1 -P 4000
+proto-compile: ## 🛠️ Compile protobuf files
+	@echo "Compiling protobuf files..."
+	protoc --go_out=. --go-grpc_out=. proto/*.proto

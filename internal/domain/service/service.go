@@ -2,135 +2,35 @@ package service
 
 import (
 	"context"
-	"goapptemp/config"
-	"goapptemp/internal/adapter/pubsub"
-	"goapptemp/internal/adapter/repository"
-	"goapptemp/internal/shared"
-	"goapptemp/internal/shared/token"
-	"goapptemp/pkg/gmailsender"
-	"goapptemp/pkg/logger"
+	"inventory-service/config"
+	"inventory-service/internal/adapter/repository"
+	"inventory-service/pkg/logger"
+	"inventory-service/proto/pb"
 )
 
 var _ Service = (*service)(nil)
+var _ pb.InventoryServiceServer = (*service)(nil)
 
 type Service interface {
-	Token() token.Token
-	Auth() AuthService
-	User() UserService
-	Client() ClientService
-	Role() RoleService
-	SupportFeature() SupportFeatureService
-	Province() ProvinceService
-	City() CityService
-	District() DistrictService
-	Notification() NotificationService
-	Webhook() WebhookService
-	StaleTaskDetector() StaleTaskDetector
-	Product() ProductService
-	Reservation() ReservationService
+	ProductService
+	ReservationService
+	mustEmbedUnimplementedInventoryServiceServer()
 }
 
 type service struct {
-	tokenManager          token.Token
-	authService           AuthService
-	userService           UserService
-	productService        ProductService
-	reservationService    ReservationService
-	clientService         ClientService
-	roleService           RoleService
-	supportFeatureService SupportFeatureService
-	webhookService        WebhookService
-	provinceService       ProvinceService
-	cityService           CityService
-	districtService       DistrictService
-	staleTaskDetector     StaleTaskDetector
-	notificationService   NotificationService
+	productService     ProductService
+	reservationService ReservationService
 }
 
 func NewService(
 	config *config.Config,
 	repo repository.Repository,
 	logger logger.Logger,
-	token token.Token,
-	publisher pubsub.Publisher,
 ) (*service, error) {
-	validate, err := shared.NewValidator()
-	if err != nil {
-		return nil, err
-	}
-
-	gmailSender, err := gmailsender.NewGmailSender(context.Background(), config.Gmail.CredFile, config.Gmail.CredFile, config.Gmail.Sender)
-	if err != nil {
-		return nil, err
-	}
-
-	notifService := NewNotificationService(gmailSender, logger)
-	pubsubService := NewPubsubService(config, logger, publisher)
-	authService := NewAuthService(config, token, repo, logger, notifService)
-
 	return &service{
-		authService:           authService,
-		userService:           NewUserService(config, repo, logger, authService),
-		productService:        NewProductService(config, repo, logger),
-		reservationService:    NewReservationService(config, repo, logger),
-		clientService:         NewClientService(config, repo, logger, authService, pubsubService),
-		roleService:           NewRoleService(config, repo, logger, authService),
-		supportFeatureService: NewSupportFeatureService(config, repo, logger, authService, validate),
-		provinceService:       NewProvinceService(config, repo, logger, authService),
-		cityService:           NewCityService(config, repo, logger, authService),
-		districtService:       NewDistrictService(config, repo, logger, authService),
-		staleTaskDetector:     NewStaleTaskDetector(config, repo, logger),
-		webhookService:        NewWebhookService(config, repo, logger),
-		notificationService:   notifService,
+		productService:     NewProductService(config, repo, logger),
+		reservationService: NewReservationService(config, repo, logger),
 	}, nil
-}
-
-func (s *service) Token() token.Token {
-	return s.tokenManager
-}
-
-func (s *service) Auth() AuthService {
-	return s.authService
-}
-
-func (s *service) User() UserService {
-	return s.userService
-}
-
-func (s *service) Client() ClientService {
-	return s.clientService
-}
-
-func (s *service) Role() RoleService {
-	return s.roleService
-}
-
-func (s *service) SupportFeature() SupportFeatureService {
-	return s.supportFeatureService
-}
-
-func (s *service) Province() ProvinceService {
-	return s.provinceService
-}
-
-func (s *service) City() CityService {
-	return s.cityService
-}
-
-func (s *service) District() DistrictService {
-	return s.districtService
-}
-
-func (s *service) Notification() NotificationService {
-	return s.notificationService
-}
-
-func (s *service) Webhook() WebhookService {
-	return s.webhookService
-}
-
-func (s *service) StaleTaskDetector() StaleTaskDetector {
-	return s.staleTaskDetector
 }
 
 func (s *service) Product() ProductService {
@@ -140,4 +40,28 @@ func (s *service) Product() ProductService {
 func (s *service) Reservation() ReservationService {
 	return s.reservationService
 }
- 
+
+func (s *service) ListProducts(ctx context.Context, req *pb.ListProductsRequest) (*pb.ListProductsResponse, error) {
+	return &pb.ListProductsResponse{}, nil
+}
+
+func (s *service) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb.GetProductResponse, error) {
+	return &pb.GetProductResponse{}, nil
+}
+
+func (s *service) CreateReservation(ctx context.Context, req *pb.CreateReservationRequest) (*pb.CreateReservationResponse, error) {
+	// Implement logic for creating a reservation
+	return &pb.CreateReservationResponse{}, nil
+}
+
+func (s *service) ListReservations(ctx context.Context, req *pb.ListReservationsRequest) (*pb.ListReservationsResponse, error) {
+	// Implement logic for listing reservations
+	return &pb.ListReservationsResponse{}, nil
+}
+
+func (s *service) GetReservation(ctx context.Context, req *pb.GetReservationRequest) (*pb.GetReservationResponse, error) {
+	// Implement logic for getting a reservation
+	return &pb.GetReservationResponse{}, nil
+}
+
+func (s *service) mustEmbedUnimplementedInventoryServiceServer() {}

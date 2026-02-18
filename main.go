@@ -1,7 +1,7 @@
 package main
 
 import (
-	"goapptemp/cmd"
+	"inventory-service/cmd"
 )
 
 func main() {

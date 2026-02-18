@@ -47,7 +47,7 @@ const (
 const (
 	TokenType          string = "Bearer"
 	TokenMinSecretSize int    = 32
-	TokenIssuer        string = "goapptemp-auth"
+	TokenIssuer        string = "inventory-service-auth"
 )
 
 const (
@@ -58,7 +58,7 @@ const (
 const (
 	SoftDeleteColumnName string = "deleted_at"
 	KeyColumnName        string = "key"
-	ParentSchema         string = "goapptemp"
+	ParentSchema         string = "inventory-service"
 )
 
 const (

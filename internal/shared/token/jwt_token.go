@@ -3,8 +3,8 @@ package token
 import (
 	"errors"
 	"fmt"
-	"goapptemp/constant"
-	"goapptemp/internal/shared"
+	"inventory-service/constant"
+	"inventory-service/internal/shared"
 	"strconv"
 	"time"
 

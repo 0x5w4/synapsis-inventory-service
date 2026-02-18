@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"goapptemp/cmd/app"
-	"goapptemp/config"
-	"goapptemp/pkg/logger"
+	"inventory-service/cmd/app"
+	"inventory-service/config"
+	"inventory-service/pkg/logger"
 	"os"
 	"slices"
 	"strings"
@@ -14,21 +14,21 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "goapptemp",
-	Short: "goapptemp service",
+	Use:   "inventory-service",
+	Short: "inventory-service service",
 }
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Print the version number of goapptemp service",
+	Short: "Print the version number of inventory-service service",
 	Run: func(_ *cobra.Command, _ []string) {
-		fmt.Println("goapptemp Service v0.1")
+		fmt.Println("inventory-service Service v0.1")
 	},
 }
 
 var runCmd = &cobra.Command{
 	Use:   "run",
-	Short: "Run the goapptemp service",
+	Short: "Run the inventory-service service",
 	Run: func(cmd *cobra.Command, _ []string) {
 		configFile, err := cmd.Flags().GetString("config")
 		if err != nil {
