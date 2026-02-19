@@ -9,12 +9,14 @@ import (
 	"inventory-service/pkg/logger"
 )
 
+var _ ProductService = (*productService)(nil)
+
 type ProductService interface {
-	CreateProduct(ctx context.Context, product *entity.Product) (*entity.Product, error)
-	DeleteProduct(ctx context.Context, id uint32) (string, error)
+	Create(ctx context.Context, product *entity.Product) (*entity.Product, error)
+	Update(ctx context.Context, product *entity.Product) (*entity.Product, error)
+	Delete(ctx context.Context, id uint32) error
 	Find(ctx context.Context, filter *postgresrepository.FilterProductPayload) ([]*entity.Product, int, error)
-	FindByID(ctx context.Context, id uint) (*entity.Product, error)
-	UpdateProduct(ctx context.Context, product *entity.Product) (*entity.Product, error)
+	FindByID(ctx context.Context, id uint32) (*entity.Product, error)
 }
 
 type productService struct {
@@ -31,21 +33,53 @@ func (s *productService) Find(ctx context.Context, filter *postgresrepository.Fi
 	return s.repo.Postgres().Product().Find(ctx, filter)
 }
 
-func (s *productService) FindByID(ctx context.Context, id uint) (*entity.Product, error) {
+func (s *productService) FindByID(ctx context.Context, id uint32) (*entity.Product, error) {
 	return s.repo.Postgres().Product().FindByID(ctx, id)
 }
 
-func (s *productService) CreateProduct(ctx context.Context, product *entity.Product) (*entity.Product, error) {
-	// Implement logic for creating a product
-	return product, nil
+func (s *productService) Create(ctx context.Context, product *entity.Product) (*entity.Product, error) {
+	var createdProduct *entity.Product
+
+	atomic := func(r postgresrepository.PostgresRepository) error {
+		var err error
+		createdProduct, err = r.Product().Create(ctx, product)
+		return err
+	}
+
+	err := s.repo.Postgres().Atomic(ctx, s.config, atomic)
+	if err != nil {
+		return nil, err
+	}
+
+	return createdProduct, nil
 }
 
-func (s *productService) DeleteProduct(ctx context.Context, id uint32) (string, error) {
-	// Implement logic for deleting a product
-	return "Product deleted successfully", nil
+func (s *productService) Update(ctx context.Context, product *entity.Product) (*entity.Product, error) {
+	var updatedProduct *entity.Product
+
+	atomic := func(r postgresrepository.PostgresRepository) error {
+		var err error
+		updatedProduct, err = r.Product().Update(ctx, product)
+		return err
+	}
+
+	err := s.repo.Postgres().Atomic(ctx, s.config, atomic)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedProduct, nil
 }
 
-func (s *productService) UpdateProduct(ctx context.Context, product *entity.Product) (*entity.Product, error) {
-	// Implement logic for updating a product
-	return product, nil
+func (s *productService) Delete(ctx context.Context, id uint32) error {
+	atomic := func(r postgresrepository.PostgresRepository) error {
+		return r.Product().Delete(ctx, id)
+	}
+
+	err := s.repo.Postgres().Atomic(ctx, s.config, atomic)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

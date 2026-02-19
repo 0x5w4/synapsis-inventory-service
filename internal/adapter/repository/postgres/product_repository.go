@@ -13,11 +13,11 @@ import (
 var _ ProductRepository = (*productRepository)(nil)
 
 type ProductRepository interface {
-	FindByID(ctx context.Context, id uint) (*entity.Product, error)
+	FindByID(ctx context.Context, id uint32) (*entity.Product, error)
 	Find(ctx context.Context, filter *FilterProductPayload) ([]*entity.Product, int, error)
-	CreateProduct(ctx context.Context, product *entity.Product) (*entity.Product, error)
-	DeleteProduct(ctx context.Context, id uint32) error
-	UpdateProduct(ctx context.Context, product *entity.Product) (*entity.Product, error)
+	Create(ctx context.Context, product *entity.Product) (*entity.Product, error)
+	Delete(ctx context.Context, id uint32) error
+	Update(ctx context.Context, product *entity.Product) (*entity.Product, error)
 }
 
 type productRepository struct {
@@ -33,10 +33,8 @@ func (r *productRepository) GetTableName() string {
 	return "products"
 }
 
-// Exported FilterProductPayload struct
 type FilterProductPayload struct {
-	IDs     []uint
-	Codes   []string
+	IDs     []uint32
 	Names   []string
 	Search  string
 	Page    int
@@ -52,10 +50,6 @@ func (r *productRepository) Find(ctx context.Context, filter *FilterProductPaylo
 		query = query.Where("id IN (?)", bun.In(filter.IDs))
 	}
 
-	if len(filter.Codes) > 0 {
-		query = query.Where("code IN (?)", bun.In(filter.Codes))
-	}
-
 	if len(filter.Names) > 0 {
 		query = query.WhereGroup(" AND ", func(q *bun.SelectQuery) *bun.SelectQuery {
 			for i := range filter.Names {
@@ -68,7 +62,6 @@ func (r *productRepository) Find(ctx context.Context, filter *FilterProductPaylo
 	if filter.Search != "" {
 		query = query.WhereGroup(" AND ", func(q *bun.SelectQuery) *bun.SelectQuery {
 			q = q.WhereOr("LOWER(name) LIKE LOWER(?)", "%"+filter.Search+"%")
-			q = q.WhereOr("LOWER(code) LIKE LOWER(?)", "%"+filter.Search+"%")
 			return q
 		})
 	}
@@ -99,12 +92,13 @@ func (r *productRepository) Find(ctx context.Context, filter *FilterProductPaylo
 	return model.ToProductsDomain(products), totalCount, nil
 }
 
-func (r *productRepository) FindByID(ctx context.Context, id uint) (*entity.Product, error) {
+func (r *productRepository) FindByID(ctx context.Context, id uint32) (*entity.Product, error) {
 	if id == 0 {
 		return nil, exception.ErrIDNull
 	}
 
 	product := &model.Product{Base: model.Base{ID: id}}
+
 	if err := r.db.NewSelect().Model(product).WherePK().Scan(ctx); err != nil {
 		return nil, exception.NewDBError(err, r.GetTableName(), "find product by id")
 	}
@@ -112,17 +106,47 @@ func (r *productRepository) FindByID(ctx context.Context, id uint) (*entity.Prod
 	return product.ToDomain(), nil
 }
 
-func (r *productRepository) CreateProduct(ctx context.Context, product *entity.Product) (*entity.Product, error) {
-	// Implement database logic for creating a product
-	return product, nil
+func (r *productRepository) Create(ctx context.Context, product *entity.Product) (*entity.Product, error) {
+	if product == nil {
+		return nil, exception.ErrDataNull
+	}
+
+	dbProduct := model.AsProduct(product)
+
+	_, err := r.db.NewInsert().Model(dbProduct).Exec(ctx)
+	if err != nil {
+		return nil, exception.NewDBError(err, r.GetTableName(), "create product")
+	}
+
+	return dbProduct.ToDomain(), nil
 }
 
-func (r *productRepository) DeleteProduct(ctx context.Context, id uint32) error {
-	// Implement database logic for deleting a product
+func (r *productRepository) Update(ctx context.Context, product *entity.Product) (*entity.Product, error) {
+	if product == nil || product.Base.ID == 0 {
+		return nil, exception.ErrDataNull
+	}
+
+	dbProduct := model.AsProduct(product)
+
+	_, err := r.db.NewUpdate().Model(dbProduct).WherePK().Exec(ctx)
+	if err != nil {
+		return nil, exception.NewDBError(err, r.GetTableName(), "update product")
+	}
+
+	return dbProduct.ToDomain(), nil
+}
+
+func (r *productRepository) Delete(ctx context.Context, id uint32) error {
+	if id == 0 {
+		return exception.ErrIDNull
+	}
+
+	dbProduct := &model.Product{Base: model.Base{ID: id}}
+
+	_, err := r.db.NewDelete().Model(dbProduct).WherePK().Exec(ctx)
+	if err != nil {
+		return exception.NewDBError(err, r.GetTableName(), "delete product")
+	}
+
 	return nil
-}
-
-func (r *productRepository) UpdateProduct(ctx context.Context, product *entity.Product) (*entity.Product, error) {
-	// Implement database logic for updating a product
-	return product, nil
 }

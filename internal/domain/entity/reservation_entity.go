@@ -2,8 +2,8 @@ package entity
 
 type Reservation struct {
 	Base
-	ProductID        uint
-	OrderID        uint
-	Quantity       int
-	Status         string
+	ProductID uint32
+	OrderID   uint32
+	Quantity  int
+	Status    string
 }

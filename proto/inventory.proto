@@ -1,12 +1,26 @@
 syntax = "proto3";
 package inventory;
 
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
 option go_package = "proto/pb;pb";
+
+enum ReservationStatus {
+  RESERVATION_STATUS_UNSPECIFIED = 0;
+  RESERVATION_STATUS_PENDING = 1;
+  RESERVATION_STATUS_CONFIRMED = 2;
+  RESERVATION_STATUS_CANCELLED = 3;
+}
+
+// --- Domain Models ---
 
 message Product {
   uint32 id = 1;
   string name = 2;
   int32 stock = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
 }
 
 message Reservation {
@@ -14,13 +28,18 @@ message Reservation {
   uint32 product_id = 2;
   uint32 order_id = 3;
   int32 quantity = 4;
-  string status = 5;
+  ReservationStatus status = 5;
+  google.protobuf.Timestamp created_at = 6;
 }
 
+// --- Product Messages ---
+
 message ListProductsRequest {
-  int32 page = 1;
-  int32 per_page = 2;
+  uint32 page = 1;
+  uint32 per_page = 2;
   string search = 3;
+  repeated uint32 ids = 4;
+  repeated string names = 5;
 }
 
 message ListProductsResponse {
@@ -32,45 +51,29 @@ message GetProductRequest {
   uint32 id = 1;
 }
 
-message GetProductResponse {
-  Product product = 1;
-}
-
 message CreateProductRequest {
-  Product product = 1;
-}
-
-message CreateProductResponse {
-  Product product = 1;
+  string name = 1;
+  int32 stock = 2;
 }
 
 message UpdateProductRequest {
-  Product product = 1;
-}
-
-message UpdateProductResponse {
-  Product product = 1;
+  uint32 id = 1;
+  string name = 2;
+  int32 stock = 3;
 }
 
 message DeleteProductRequest {
   uint32 id = 1;
 }
 
-message DeleteProductResponse {
-  string message = 1;
-}
-
-message CreateReservationRequest {
-  Reservation reservation = 1;
-}
-
-message CreateReservationResponse {
-  Reservation reservation = 1;
-}
+// --- Reservation Messages ---
 
 message ListReservationsRequest {
-  int32 page = 1;
-  int32 per_page = 2;
+  uint32 page = 1;
+  uint32 per_page = 2;
+  repeated uint32 product_ids = 3;
+  repeated uint32 order_ids = 4;
+  repeated ReservationStatus statuses = 5;
 }
 
 message ListReservationsResponse {
@@ -82,17 +85,24 @@ message GetReservationRequest {
   uint32 id = 1;
 }
 
-message GetReservationResponse {
-  Reservation reservation = 1;
+message CreateReservationRequest {
+  uint32 product_id = 1;
+  uint32 order_id = 2;
+  int32 quantity = 3;
 }
 
+// --- Service Definition ---
+
 service InventoryService {
-  rpc ListProducts (ListProductsRequest) returns (ListProductsResponse);
-  rpc GetProduct (GetProductRequest) returns (GetProductResponse);
-  rpc CreateProduct (CreateProductRequest) returns (CreateProductResponse);
-  rpc UpdateProduct (UpdateProductRequest) returns (UpdateProductResponse);
-  rpc DeleteProduct (DeleteProductRequest) returns (DeleteProductResponse);
-  rpc CreateReservation (CreateReservationRequest) returns (CreateReservationResponse);
-  rpc ListReservations (ListReservationsRequest) returns (ListReservationsResponse);
-  rpc GetReservation (GetReservationRequest) returns (GetReservationResponse);
+  // Product RPCs
+  rpc ListProducts(ListProductsRequest) returns (ListProductsResponse);
+  rpc GetProduct(GetProductRequest) returns (Product);
+  rpc CreateProduct(CreateProductRequest) returns (Product);
+  rpc UpdateProduct(UpdateProductRequest) returns (Product);
+  rpc DeleteProduct(DeleteProductRequest) returns (google.protobuf.Empty);
+
+  // Reservation RPCs
+  rpc ListReservations(ListReservationsRequest) returns (ListReservationsResponse);
+  rpc GetReservation(GetReservationRequest) returns (Reservation);
+  rpc CreateReservation(CreateReservationRequest) returns (Reservation);
 }

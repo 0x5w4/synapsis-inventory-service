@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -24,23 +25,25 @@ const (
 	InventoryService_CreateProduct_FullMethodName     = "/inventory.InventoryService/CreateProduct"
 	InventoryService_UpdateProduct_FullMethodName     = "/inventory.InventoryService/UpdateProduct"
 	InventoryService_DeleteProduct_FullMethodName     = "/inventory.InventoryService/DeleteProduct"
-	InventoryService_CreateReservation_FullMethodName = "/inventory.InventoryService/CreateReservation"
 	InventoryService_ListReservations_FullMethodName  = "/inventory.InventoryService/ListReservations"
 	InventoryService_GetReservation_FullMethodName    = "/inventory.InventoryService/GetReservation"
+	InventoryService_CreateReservation_FullMethodName = "/inventory.InventoryService/CreateReservation"
 )
 
 // InventoryServiceClient is the client API for InventoryService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type InventoryServiceClient interface {
+	// Product RPCs
 	ListProducts(ctx context.Context, in *ListProductsRequest, opts ...grpc.CallOption) (*ListProductsResponse, error)
-	GetProduct(ctx context.Context, in *GetProductRequest, opts ...grpc.CallOption) (*GetProductResponse, error)
-	CreateProduct(ctx context.Context, in *CreateProductRequest, opts ...grpc.CallOption) (*CreateProductResponse, error)
-	UpdateProduct(ctx context.Context, in *UpdateProductRequest, opts ...grpc.CallOption) (*UpdateProductResponse, error)
-	DeleteProduct(ctx context.Context, in *DeleteProductRequest, opts ...grpc.CallOption) (*DeleteProductResponse, error)
-	CreateReservation(ctx context.Context, in *CreateReservationRequest, opts ...grpc.CallOption) (*CreateReservationResponse, error)
+	GetProduct(ctx context.Context, in *GetProductRequest, opts ...grpc.CallOption) (*Product, error)
+	CreateProduct(ctx context.Context, in *CreateProductRequest, opts ...grpc.CallOption) (*Product, error)
+	UpdateProduct(ctx context.Context, in *UpdateProductRequest, opts ...grpc.CallOption) (*Product, error)
+	DeleteProduct(ctx context.Context, in *DeleteProductRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// Reservation RPCs
 	ListReservations(ctx context.Context, in *ListReservationsRequest, opts ...grpc.CallOption) (*ListReservationsResponse, error)
-	GetReservation(ctx context.Context, in *GetReservationRequest, opts ...grpc.CallOption) (*GetReservationResponse, error)
+	GetReservation(ctx context.Context, in *GetReservationRequest, opts ...grpc.CallOption) (*Reservation, error)
+	CreateReservation(ctx context.Context, in *CreateReservationRequest, opts ...grpc.CallOption) (*Reservation, error)
 }
 
 type inventoryServiceClient struct {
@@ -61,9 +64,9 @@ func (c *inventoryServiceClient) ListProducts(ctx context.Context, in *ListProdu
 	return out, nil
 }
 
-func (c *inventoryServiceClient) GetProduct(ctx context.Context, in *GetProductRequest, opts ...grpc.CallOption) (*GetProductResponse, error) {
+func (c *inventoryServiceClient) GetProduct(ctx context.Context, in *GetProductRequest, opts ...grpc.CallOption) (*Product, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetProductResponse)
+	out := new(Product)
 	err := c.cc.Invoke(ctx, InventoryService_GetProduct_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -71,9 +74,9 @@ func (c *inventoryServiceClient) GetProduct(ctx context.Context, in *GetProductR
 	return out, nil
 }
 
-func (c *inventoryServiceClient) CreateProduct(ctx context.Context, in *CreateProductRequest, opts ...grpc.CallOption) (*CreateProductResponse, error) {
+func (c *inventoryServiceClient) CreateProduct(ctx context.Context, in *CreateProductRequest, opts ...grpc.CallOption) (*Product, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateProductResponse)
+	out := new(Product)
 	err := c.cc.Invoke(ctx, InventoryService_CreateProduct_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -81,9 +84,9 @@ func (c *inventoryServiceClient) CreateProduct(ctx context.Context, in *CreatePr
 	return out, nil
 }
 
-func (c *inventoryServiceClient) UpdateProduct(ctx context.Context, in *UpdateProductRequest, opts ...grpc.CallOption) (*UpdateProductResponse, error) {
+func (c *inventoryServiceClient) UpdateProduct(ctx context.Context, in *UpdateProductRequest, opts ...grpc.CallOption) (*Product, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdateProductResponse)
+	out := new(Product)
 	err := c.cc.Invoke(ctx, InventoryService_UpdateProduct_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -91,20 +94,10 @@ func (c *inventoryServiceClient) UpdateProduct(ctx context.Context, in *UpdatePr
 	return out, nil
 }
 
-func (c *inventoryServiceClient) DeleteProduct(ctx context.Context, in *DeleteProductRequest, opts ...grpc.CallOption) (*DeleteProductResponse, error) {
+func (c *inventoryServiceClient) DeleteProduct(ctx context.Context, in *DeleteProductRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeleteProductResponse)
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, InventoryService_DeleteProduct_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *inventoryServiceClient) CreateReservation(ctx context.Context, in *CreateReservationRequest, opts ...grpc.CallOption) (*CreateReservationResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateReservationResponse)
-	err := c.cc.Invoke(ctx, InventoryService_CreateReservation_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -121,10 +114,20 @@ func (c *inventoryServiceClient) ListReservations(ctx context.Context, in *ListR
 	return out, nil
 }
 
-func (c *inventoryServiceClient) GetReservation(ctx context.Context, in *GetReservationRequest, opts ...grpc.CallOption) (*GetReservationResponse, error) {
+func (c *inventoryServiceClient) GetReservation(ctx context.Context, in *GetReservationRequest, opts ...grpc.CallOption) (*Reservation, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetReservationResponse)
+	out := new(Reservation)
 	err := c.cc.Invoke(ctx, InventoryService_GetReservation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *inventoryServiceClient) CreateReservation(ctx context.Context, in *CreateReservationRequest, opts ...grpc.CallOption) (*Reservation, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Reservation)
+	err := c.cc.Invoke(ctx, InventoryService_CreateReservation_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -135,14 +138,16 @@ func (c *inventoryServiceClient) GetReservation(ctx context.Context, in *GetRese
 // All implementations must embed UnimplementedInventoryServiceServer
 // for forward compatibility.
 type InventoryServiceServer interface {
+	// Product RPCs
 	ListProducts(context.Context, *ListProductsRequest) (*ListProductsResponse, error)
-	GetProduct(context.Context, *GetProductRequest) (*GetProductResponse, error)
-	CreateProduct(context.Context, *CreateProductRequest) (*CreateProductResponse, error)
-	UpdateProduct(context.Context, *UpdateProductRequest) (*UpdateProductResponse, error)
-	DeleteProduct(context.Context, *DeleteProductRequest) (*DeleteProductResponse, error)
-	CreateReservation(context.Context, *CreateReservationRequest) (*CreateReservationResponse, error)
+	GetProduct(context.Context, *GetProductRequest) (*Product, error)
+	CreateProduct(context.Context, *CreateProductRequest) (*Product, error)
+	UpdateProduct(context.Context, *UpdateProductRequest) (*Product, error)
+	DeleteProduct(context.Context, *DeleteProductRequest) (*emptypb.Empty, error)
+	// Reservation RPCs
 	ListReservations(context.Context, *ListReservationsRequest) (*ListReservationsResponse, error)
-	GetReservation(context.Context, *GetReservationRequest) (*GetReservationResponse, error)
+	GetReservation(context.Context, *GetReservationRequest) (*Reservation, error)
+	CreateReservation(context.Context, *CreateReservationRequest) (*Reservation, error)
 	mustEmbedUnimplementedInventoryServiceServer()
 }
 
@@ -156,26 +161,26 @@ type UnimplementedInventoryServiceServer struct{}
 func (UnimplementedInventoryServiceServer) ListProducts(context.Context, *ListProductsRequest) (*ListProductsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListProducts not implemented")
 }
-func (UnimplementedInventoryServiceServer) GetProduct(context.Context, *GetProductRequest) (*GetProductResponse, error) {
+func (UnimplementedInventoryServiceServer) GetProduct(context.Context, *GetProductRequest) (*Product, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProduct not implemented")
 }
-func (UnimplementedInventoryServiceServer) CreateProduct(context.Context, *CreateProductRequest) (*CreateProductResponse, error) {
+func (UnimplementedInventoryServiceServer) CreateProduct(context.Context, *CreateProductRequest) (*Product, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateProduct not implemented")
 }
-func (UnimplementedInventoryServiceServer) UpdateProduct(context.Context, *UpdateProductRequest) (*UpdateProductResponse, error) {
+func (UnimplementedInventoryServiceServer) UpdateProduct(context.Context, *UpdateProductRequest) (*Product, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateProduct not implemented")
 }
-func (UnimplementedInventoryServiceServer) DeleteProduct(context.Context, *DeleteProductRequest) (*DeleteProductResponse, error) {
+func (UnimplementedInventoryServiceServer) DeleteProduct(context.Context, *DeleteProductRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteProduct not implemented")
-}
-func (UnimplementedInventoryServiceServer) CreateReservation(context.Context, *CreateReservationRequest) (*CreateReservationResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateReservation not implemented")
 }
 func (UnimplementedInventoryServiceServer) ListReservations(context.Context, *ListReservationsRequest) (*ListReservationsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListReservations not implemented")
 }
-func (UnimplementedInventoryServiceServer) GetReservation(context.Context, *GetReservationRequest) (*GetReservationResponse, error) {
+func (UnimplementedInventoryServiceServer) GetReservation(context.Context, *GetReservationRequest) (*Reservation, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetReservation not implemented")
+}
+func (UnimplementedInventoryServiceServer) CreateReservation(context.Context, *CreateReservationRequest) (*Reservation, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateReservation not implemented")
 }
 func (UnimplementedInventoryServiceServer) mustEmbedUnimplementedInventoryServiceServer() {}
 func (UnimplementedInventoryServiceServer) testEmbeddedByValue()                          {}
@@ -288,24 +293,6 @@ func _InventoryService_DeleteProduct_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _InventoryService_CreateReservation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateReservationRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InventoryServiceServer).CreateReservation(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InventoryService_CreateReservation_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InventoryServiceServer).CreateReservation(ctx, req.(*CreateReservationRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _InventoryService_ListReservations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListReservationsRequest)
 	if err := dec(in); err != nil {
@@ -342,6 +329,24 @@ func _InventoryService_GetReservation_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InventoryService_CreateReservation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateReservationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InventoryServiceServer).CreateReservation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: InventoryService_CreateReservation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InventoryServiceServer).CreateReservation(ctx, req.(*CreateReservationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // InventoryService_ServiceDesc is the grpc.ServiceDesc for InventoryService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -370,16 +375,16 @@ var InventoryService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _InventoryService_DeleteProduct_Handler,
 		},
 		{
-			MethodName: "CreateReservation",
-			Handler:    _InventoryService_CreateReservation_Handler,
-		},
-		{
 			MethodName: "ListReservations",
 			Handler:    _InventoryService_ListReservations_Handler,
 		},
 		{
 			MethodName: "GetReservation",
 			Handler:    _InventoryService_GetReservation_Handler,
+		},
+		{
+			MethodName: "CreateReservation",
+			Handler:    _InventoryService_CreateReservation_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

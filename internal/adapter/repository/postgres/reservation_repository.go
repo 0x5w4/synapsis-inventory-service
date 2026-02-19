@@ -13,7 +13,7 @@ import (
 var _ ReservationRepository = (*reservationRepository)(nil)
 
 type ReservationRepository interface {
-	FindByID(ctx context.Context, id uint) (*entity.Reservation, error)
+	FindByID(ctx context.Context, id uint32) (*entity.Reservation, error)
 	Find(ctx context.Context, filter *FilterReservationPayload) ([]*entity.Reservation, int, error)
 	Create(ctx context.Context, reservation *entity.Reservation) (*entity.Reservation, error)
 }
@@ -31,11 +31,10 @@ func (r *reservationRepository) GetTableName() string {
 	return "reservations"
 }
 
-// Exported FilterReservationPayload struct
 type FilterReservationPayload struct {
-	IDs        []uint
-	ProductIDs []uint
-	OrderIDs   []uint
+	IDs        []uint32
+	ProductIDs []uint32
+	OrderIDs   []uint32
 	Statuses   []string
 	Page       int
 	PerPage    int
@@ -88,12 +87,13 @@ func (r *reservationRepository) Find(ctx context.Context, filter *FilterReservat
 	return model.ToReservationsDomain(reservations), totalCount, nil
 }
 
-func (r *reservationRepository) FindByID(ctx context.Context, id uint) (*entity.Reservation, error) {
+func (r *reservationRepository) FindByID(ctx context.Context, id uint32) (*entity.Reservation, error) {
 	if id == 0 {
 		return nil, exception.ErrIDNull
 	}
 
 	reservation := &model.Reservation{Base: model.Base{ID: id}}
+
 	if err := r.db.NewSelect().Model(reservation).WherePK().Scan(ctx); err != nil {
 		return nil, exception.NewDBError(err, r.GetTableName(), "find reservation by id")
 	}
@@ -106,12 +106,12 @@ func (r *reservationRepository) Create(ctx context.Context, reservation *entity.
 		return nil, exception.ErrDataNull
 	}
 
-	modelRes := model.AsReservation(reservation)
+	dbReservation := model.AsReservation(reservation)
 
-	_, err := r.db.NewInsert().Model(modelRes).Exec(ctx)
+	_, err := r.db.NewInsert().Model(dbReservation).Exec(ctx)
 	if err != nil {
 		return nil, exception.NewDBError(err, r.GetTableName(), "create reservation")
 	}
 
-	return modelRes.ToDomain(), nil
+	return dbReservation.ToDomain(), nil
 }

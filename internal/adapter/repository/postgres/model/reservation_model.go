@@ -9,9 +9,9 @@ import (
 type Reservation struct {
 	bun.BaseModel `bun:"table:reservations,alias:reservation"`
 	Base                   // Ensure Base struct is embedded
-	ProductID     uint     `bun:"product_id,notnull"`
+	ProductID     uint32   `bun:"product_id,notnull"`
 	Product       *Product `bun:"rel:belongs-to,join:product_id=id"`
-	OrderID       uint     `bun:"order_id,notnull"`
+	OrderID       uint32   `bun:"order_id,notnull"`
 	Quantity      int      `bun:"quantity,notnull"`
 	Status        string   `bun:"status,notnull"`
 }
