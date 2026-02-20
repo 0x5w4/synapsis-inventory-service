@@ -819,6 +819,58 @@ func (x *CreateReservationRequest) GetQuantity() int32 {
 	return 0
 }
 
+type UpdateReservationStatusRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Status        ReservationStatus      `protobuf:"varint,2,opt,name=status,proto3,enum=inventory.ReservationStatus" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateReservationStatusRequest) Reset() {
+	*x = UpdateReservationStatusRequest{}
+	mi := &file_proto_inventory_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateReservationStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateReservationStatusRequest) ProtoMessage() {}
+
+func (x *UpdateReservationStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_inventory_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateReservationStatusRequest.ProtoReflect.Descriptor instead.
+func (*UpdateReservationStatusRequest) Descriptor() ([]byte, []int) {
+	return file_proto_inventory_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *UpdateReservationStatusRequest) GetId() uint32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *UpdateReservationStatusRequest) GetStatus() ReservationStatus {
+	if x != nil {
+		return x.Status
+	}
+	return ReservationStatus_RESERVATION_STATUS_UNSPECIFIED
+}
+
 var File_proto_inventory_proto protoreflect.FileDescriptor
 
 const file_proto_inventory_proto_rawDesc = "" +
@@ -880,12 +932,15 @@ const file_proto_inventory_proto_rawDesc = "" +
 	"\n" +
 	"product_id\x18\x01 \x01(\rR\tproductId\x12\x19\n" +
 	"\border_id\x18\x02 \x01(\rR\aorderId\x12\x1a\n" +
-	"\bquantity\x18\x03 \x01(\x05R\bquantity*\x9b\x01\n" +
+	"\bquantity\x18\x03 \x01(\x05R\bquantity\"f\n" +
+	"\x1eUpdateReservationStatusRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\rR\x02id\x124\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x1c.inventory.ReservationStatusR\x06status*\x9b\x01\n" +
 	"\x11ReservationStatus\x12\"\n" +
 	"\x1eRESERVATION_STATUS_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aRESERVATION_STATUS_PENDING\x10\x01\x12 \n" +
 	"\x1cRESERVATION_STATUS_CONFIRMED\x10\x02\x12 \n" +
-	"\x1cRESERVATION_STATUS_CANCELLED\x10\x032\xf4\x04\n" +
+	"\x1cRESERVATION_STATUS_CANCELLED\x10\x032\xd2\x05\n" +
 	"\x10InventoryService\x12O\n" +
 	"\fListProducts\x12\x1e.inventory.ListProductsRequest\x1a\x1f.inventory.ListProductsResponse\x12>\n" +
 	"\n" +
@@ -895,7 +950,8 @@ const file_proto_inventory_proto_rawDesc = "" +
 	"\rDeleteProduct\x12\x1f.inventory.DeleteProductRequest\x1a\x16.google.protobuf.Empty\x12[\n" +
 	"\x10ListReservations\x12\".inventory.ListReservationsRequest\x1a#.inventory.ListReservationsResponse\x12J\n" +
 	"\x0eGetReservation\x12 .inventory.GetReservationRequest\x1a\x16.inventory.Reservation\x12P\n" +
-	"\x11CreateReservation\x12#.inventory.CreateReservationRequest\x1a\x16.inventory.ReservationB\rZ\vproto/pb;pbb\x06proto3"
+	"\x11CreateReservation\x12#.inventory.CreateReservationRequest\x1a\x16.inventory.Reservation\x12\\\n" +
+	"\x17UpdateReservationStatus\x12).inventory.UpdateReservationStatusRequest\x1a\x16.inventory.ReservationB\rZ\vproto/pb;pbb\x06proto3"
 
 var (
 	file_proto_inventory_proto_rawDescOnce sync.Once
@@ -910,53 +966,57 @@ func file_proto_inventory_proto_rawDescGZIP() []byte {
 }
 
 var file_proto_inventory_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_proto_inventory_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_proto_inventory_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_proto_inventory_proto_goTypes = []any{
-	(ReservationStatus)(0),           // 0: inventory.ReservationStatus
-	(*Product)(nil),                  // 1: inventory.Product
-	(*Reservation)(nil),              // 2: inventory.Reservation
-	(*ListProductsRequest)(nil),      // 3: inventory.ListProductsRequest
-	(*ListProductsResponse)(nil),     // 4: inventory.ListProductsResponse
-	(*GetProductRequest)(nil),        // 5: inventory.GetProductRequest
-	(*CreateProductRequest)(nil),     // 6: inventory.CreateProductRequest
-	(*UpdateProductRequest)(nil),     // 7: inventory.UpdateProductRequest
-	(*DeleteProductRequest)(nil),     // 8: inventory.DeleteProductRequest
-	(*ListReservationsRequest)(nil),  // 9: inventory.ListReservationsRequest
-	(*ListReservationsResponse)(nil), // 10: inventory.ListReservationsResponse
-	(*GetReservationRequest)(nil),    // 11: inventory.GetReservationRequest
-	(*CreateReservationRequest)(nil), // 12: inventory.CreateReservationRequest
-	(*timestamppb.Timestamp)(nil),    // 13: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),            // 14: google.protobuf.Empty
+	(ReservationStatus)(0),                 // 0: inventory.ReservationStatus
+	(*Product)(nil),                        // 1: inventory.Product
+	(*Reservation)(nil),                    // 2: inventory.Reservation
+	(*ListProductsRequest)(nil),            // 3: inventory.ListProductsRequest
+	(*ListProductsResponse)(nil),           // 4: inventory.ListProductsResponse
+	(*GetProductRequest)(nil),              // 5: inventory.GetProductRequest
+	(*CreateProductRequest)(nil),           // 6: inventory.CreateProductRequest
+	(*UpdateProductRequest)(nil),           // 7: inventory.UpdateProductRequest
+	(*DeleteProductRequest)(nil),           // 8: inventory.DeleteProductRequest
+	(*ListReservationsRequest)(nil),        // 9: inventory.ListReservationsRequest
+	(*ListReservationsResponse)(nil),       // 10: inventory.ListReservationsResponse
+	(*GetReservationRequest)(nil),          // 11: inventory.GetReservationRequest
+	(*CreateReservationRequest)(nil),       // 12: inventory.CreateReservationRequest
+	(*UpdateReservationStatusRequest)(nil), // 13: inventory.UpdateReservationStatusRequest
+	(*timestamppb.Timestamp)(nil),          // 14: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),                  // 15: google.protobuf.Empty
 }
 var file_proto_inventory_proto_depIdxs = []int32{
-	13, // 0: inventory.Product.created_at:type_name -> google.protobuf.Timestamp
-	13, // 1: inventory.Product.updated_at:type_name -> google.protobuf.Timestamp
+	14, // 0: inventory.Product.created_at:type_name -> google.protobuf.Timestamp
+	14, // 1: inventory.Product.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 2: inventory.Reservation.status:type_name -> inventory.ReservationStatus
-	13, // 3: inventory.Reservation.created_at:type_name -> google.protobuf.Timestamp
+	14, // 3: inventory.Reservation.created_at:type_name -> google.protobuf.Timestamp
 	1,  // 4: inventory.ListProductsResponse.products:type_name -> inventory.Product
 	0,  // 5: inventory.ListReservationsRequest.statuses:type_name -> inventory.ReservationStatus
 	2,  // 6: inventory.ListReservationsResponse.reservations:type_name -> inventory.Reservation
-	3,  // 7: inventory.InventoryService.ListProducts:input_type -> inventory.ListProductsRequest
-	5,  // 8: inventory.InventoryService.GetProduct:input_type -> inventory.GetProductRequest
-	6,  // 9: inventory.InventoryService.CreateProduct:input_type -> inventory.CreateProductRequest
-	7,  // 10: inventory.InventoryService.UpdateProduct:input_type -> inventory.UpdateProductRequest
-	8,  // 11: inventory.InventoryService.DeleteProduct:input_type -> inventory.DeleteProductRequest
-	9,  // 12: inventory.InventoryService.ListReservations:input_type -> inventory.ListReservationsRequest
-	11, // 13: inventory.InventoryService.GetReservation:input_type -> inventory.GetReservationRequest
-	12, // 14: inventory.InventoryService.CreateReservation:input_type -> inventory.CreateReservationRequest
-	4,  // 15: inventory.InventoryService.ListProducts:output_type -> inventory.ListProductsResponse
-	1,  // 16: inventory.InventoryService.GetProduct:output_type -> inventory.Product
-	1,  // 17: inventory.InventoryService.CreateProduct:output_type -> inventory.Product
-	1,  // 18: inventory.InventoryService.UpdateProduct:output_type -> inventory.Product
-	14, // 19: inventory.InventoryService.DeleteProduct:output_type -> google.protobuf.Empty
-	10, // 20: inventory.InventoryService.ListReservations:output_type -> inventory.ListReservationsResponse
-	2,  // 21: inventory.InventoryService.GetReservation:output_type -> inventory.Reservation
-	2,  // 22: inventory.InventoryService.CreateReservation:output_type -> inventory.Reservation
-	15, // [15:23] is the sub-list for method output_type
-	7,  // [7:15] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	0,  // 7: inventory.UpdateReservationStatusRequest.status:type_name -> inventory.ReservationStatus
+	3,  // 8: inventory.InventoryService.ListProducts:input_type -> inventory.ListProductsRequest
+	5,  // 9: inventory.InventoryService.GetProduct:input_type -> inventory.GetProductRequest
+	6,  // 10: inventory.InventoryService.CreateProduct:input_type -> inventory.CreateProductRequest
+	7,  // 11: inventory.InventoryService.UpdateProduct:input_type -> inventory.UpdateProductRequest
+	8,  // 12: inventory.InventoryService.DeleteProduct:input_type -> inventory.DeleteProductRequest
+	9,  // 13: inventory.InventoryService.ListReservations:input_type -> inventory.ListReservationsRequest
+	11, // 14: inventory.InventoryService.GetReservation:input_type -> inventory.GetReservationRequest
+	12, // 15: inventory.InventoryService.CreateReservation:input_type -> inventory.CreateReservationRequest
+	13, // 16: inventory.InventoryService.UpdateReservationStatus:input_type -> inventory.UpdateReservationStatusRequest
+	4,  // 17: inventory.InventoryService.ListProducts:output_type -> inventory.ListProductsResponse
+	1,  // 18: inventory.InventoryService.GetProduct:output_type -> inventory.Product
+	1,  // 19: inventory.InventoryService.CreateProduct:output_type -> inventory.Product
+	1,  // 20: inventory.InventoryService.UpdateProduct:output_type -> inventory.Product
+	15, // 21: inventory.InventoryService.DeleteProduct:output_type -> google.protobuf.Empty
+	10, // 22: inventory.InventoryService.ListReservations:output_type -> inventory.ListReservationsResponse
+	2,  // 23: inventory.InventoryService.GetReservation:output_type -> inventory.Reservation
+	2,  // 24: inventory.InventoryService.CreateReservation:output_type -> inventory.Reservation
+	2,  // 25: inventory.InventoryService.UpdateReservationStatus:output_type -> inventory.Reservation
+	17, // [17:26] is the sub-list for method output_type
+	8,  // [8:17] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_proto_inventory_proto_init() }
@@ -970,7 +1030,7 @@ func file_proto_inventory_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_inventory_proto_rawDesc), len(file_proto_inventory_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   12,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

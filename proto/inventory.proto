@@ -94,6 +94,11 @@ message CreateReservationRequest {
   int32 quantity = 3;
 }
 
+message UpdateReservationStatusRequest {
+  uint32 id = 1;
+  ReservationStatus status = 2;
+}
+
 // --- Service Definition ---
 
 service InventoryService {
@@ -108,4 +113,5 @@ service InventoryService {
   rpc ListReservations(ListReservationsRequest) returns (ListReservationsResponse);
   rpc GetReservation(GetReservationRequest) returns (Reservation);
   rpc CreateReservation(CreateReservationRequest) returns (Reservation);
+  rpc UpdateReservationStatus(UpdateReservationStatusRequest) returns (Reservation);
 }

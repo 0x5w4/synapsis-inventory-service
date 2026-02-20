@@ -20,14 +20,15 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	InventoryService_ListProducts_FullMethodName      = "/inventory.InventoryService/ListProducts"
-	InventoryService_GetProduct_FullMethodName        = "/inventory.InventoryService/GetProduct"
-	InventoryService_CreateProduct_FullMethodName     = "/inventory.InventoryService/CreateProduct"
-	InventoryService_UpdateProduct_FullMethodName     = "/inventory.InventoryService/UpdateProduct"
-	InventoryService_DeleteProduct_FullMethodName     = "/inventory.InventoryService/DeleteProduct"
-	InventoryService_ListReservations_FullMethodName  = "/inventory.InventoryService/ListReservations"
-	InventoryService_GetReservation_FullMethodName    = "/inventory.InventoryService/GetReservation"
-	InventoryService_CreateReservation_FullMethodName = "/inventory.InventoryService/CreateReservation"
+	InventoryService_ListProducts_FullMethodName            = "/inventory.InventoryService/ListProducts"
+	InventoryService_GetProduct_FullMethodName              = "/inventory.InventoryService/GetProduct"
+	InventoryService_CreateProduct_FullMethodName           = "/inventory.InventoryService/CreateProduct"
+	InventoryService_UpdateProduct_FullMethodName           = "/inventory.InventoryService/UpdateProduct"
+	InventoryService_DeleteProduct_FullMethodName           = "/inventory.InventoryService/DeleteProduct"
+	InventoryService_ListReservations_FullMethodName        = "/inventory.InventoryService/ListReservations"
+	InventoryService_GetReservation_FullMethodName          = "/inventory.InventoryService/GetReservation"
+	InventoryService_CreateReservation_FullMethodName       = "/inventory.InventoryService/CreateReservation"
+	InventoryService_UpdateReservationStatus_FullMethodName = "/inventory.InventoryService/UpdateReservationStatus"
 )
 
 // InventoryServiceClient is the client API for InventoryService service.
@@ -44,6 +45,7 @@ type InventoryServiceClient interface {
 	ListReservations(ctx context.Context, in *ListReservationsRequest, opts ...grpc.CallOption) (*ListReservationsResponse, error)
 	GetReservation(ctx context.Context, in *GetReservationRequest, opts ...grpc.CallOption) (*Reservation, error)
 	CreateReservation(ctx context.Context, in *CreateReservationRequest, opts ...grpc.CallOption) (*Reservation, error)
+	UpdateReservationStatus(ctx context.Context, in *UpdateReservationStatusRequest, opts ...grpc.CallOption) (*Reservation, error)
 }
 
 type inventoryServiceClient struct {
@@ -134,6 +136,16 @@ func (c *inventoryServiceClient) CreateReservation(ctx context.Context, in *Crea
 	return out, nil
 }
 
+func (c *inventoryServiceClient) UpdateReservationStatus(ctx context.Context, in *UpdateReservationStatusRequest, opts ...grpc.CallOption) (*Reservation, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Reservation)
+	err := c.cc.Invoke(ctx, InventoryService_UpdateReservationStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // InventoryServiceServer is the server API for InventoryService service.
 // All implementations must embed UnimplementedInventoryServiceServer
 // for forward compatibility.
@@ -148,6 +160,7 @@ type InventoryServiceServer interface {
 	ListReservations(context.Context, *ListReservationsRequest) (*ListReservationsResponse, error)
 	GetReservation(context.Context, *GetReservationRequest) (*Reservation, error)
 	CreateReservation(context.Context, *CreateReservationRequest) (*Reservation, error)
+	UpdateReservationStatus(context.Context, *UpdateReservationStatusRequest) (*Reservation, error)
 	mustEmbedUnimplementedInventoryServiceServer()
 }
 
@@ -181,6 +194,9 @@ func (UnimplementedInventoryServiceServer) GetReservation(context.Context, *GetR
 }
 func (UnimplementedInventoryServiceServer) CreateReservation(context.Context, *CreateReservationRequest) (*Reservation, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateReservation not implemented")
+}
+func (UnimplementedInventoryServiceServer) UpdateReservationStatus(context.Context, *UpdateReservationStatusRequest) (*Reservation, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateReservationStatus not implemented")
 }
 func (UnimplementedInventoryServiceServer) mustEmbedUnimplementedInventoryServiceServer() {}
 func (UnimplementedInventoryServiceServer) testEmbeddedByValue()                          {}
@@ -347,6 +363,24 @@ func _InventoryService_CreateReservation_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InventoryService_UpdateReservationStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateReservationStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InventoryServiceServer).UpdateReservationStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: InventoryService_UpdateReservationStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InventoryServiceServer).UpdateReservationStatus(ctx, req.(*UpdateReservationStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // InventoryService_ServiceDesc is the grpc.ServiceDesc for InventoryService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -385,6 +419,10 @@ var InventoryService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateReservation",
 			Handler:    _InventoryService_CreateReservation_Handler,
+		},
+		{
+			MethodName: "UpdateReservationStatus",
+			Handler:    _InventoryService_UpdateReservationStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
