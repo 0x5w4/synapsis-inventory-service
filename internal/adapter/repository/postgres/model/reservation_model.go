@@ -8,12 +8,13 @@ import (
 
 type Reservation struct {
 	bun.BaseModel `bun:"table:reservations,alias:reservation"`
-	Base                   // Ensure Base struct is embedded
-	ProductID     uint32   `bun:"product_id,notnull"`
-	Product       *Product `bun:"rel:belongs-to,join:product_id=id"`
-	OrderID       uint32   `bun:"order_id,notnull"`
-	Quantity      int      `bun:"quantity,notnull"`
-	Status        string   `bun:"status,notnull"`
+	Base
+	ProductID uint32 `bun:"product_id,notnull"`
+	OrderID   uint32 `bun:"order_id,notnull"`
+	Quantity  int    `bun:"quantity,notnull"`
+	Status    string `bun:"status,notnull"`
+
+	Product *Product `bun:"rel:belongs-to,join:product_id=id"`
 }
 
 func (m *Reservation) ToDomain() *entity.Reservation {
@@ -21,7 +22,7 @@ func (m *Reservation) ToDomain() *entity.Reservation {
 		return nil
 	}
 
-	res := &entity.Reservation{
+	return &entity.Reservation{
 		Base: entity.Base{
 			ID:        m.ID,
 			CreatedAt: m.CreatedAt,
@@ -32,9 +33,8 @@ func (m *Reservation) ToDomain() *entity.Reservation {
 		OrderID:   m.OrderID,
 		Quantity:  m.Quantity,
 		Status:    m.Status,
+		Product:   m.Product.ToDomain(),
 	}
-
-	return res
 }
 
 func ToReservationsDomain(arg []*Reservation) []*entity.Reservation {
@@ -71,6 +71,7 @@ func AsReservation(arg *entity.Reservation) *Reservation {
 		OrderID:   arg.OrderID,
 		Quantity:  arg.Quantity,
 		Status:    arg.Status,
+		Product:   AsProduct(arg.Product),
 	}
 }
 

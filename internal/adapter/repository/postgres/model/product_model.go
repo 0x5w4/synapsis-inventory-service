@@ -8,9 +8,9 @@ import (
 
 type Product struct {
 	bun.BaseModel `bun:"table:products,alias:product"`
-	Base                 // Ensure Base struct is embedded
-	Name          string `bun:"name,notnull"`
-	Stock         int    `bun:"stock,notnull"`
+	Base
+	Name  string `bun:"name,notnull"`
+	Stock int    `bun:"stock,notnull"`
 }
 
 func (m *Product) ToDomain() *entity.Product {

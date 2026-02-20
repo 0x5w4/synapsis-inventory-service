@@ -1,21 +1,17 @@
 package grpcadapter
 
-import "inventory-service/proto/pb"
-
-const (
-	DBStatusPending     = "PENDING"
-	DBStatusConfirmed   = "CONFIRMED"
-	DBStatusCancelled   = "CANCELLED"
-	DBStatusUnspecified = "UNSPECIFIED"
+import (
+	"inventory-service/constant"
+	"inventory-service/proto/pb"
 )
 
 func MapDBStatusToPBStatus(dbStatus string) pb.ReservationStatus {
 	switch dbStatus {
-	case DBStatusPending:
+	case constant.ReservationStatusPending:
 		return pb.ReservationStatus_RESERVATION_STATUS_PENDING
-	case DBStatusConfirmed:
+	case constant.ReservationStatusConfirmed:
 		return pb.ReservationStatus_RESERVATION_STATUS_CONFIRMED
-	case DBStatusCancelled:
+	case constant.ReservationStatusCancelled:
 		return pb.ReservationStatus_RESERVATION_STATUS_CANCELLED
 	default:
 		return pb.ReservationStatus_RESERVATION_STATUS_UNSPECIFIED
@@ -25,12 +21,12 @@ func MapDBStatusToPBStatus(dbStatus string) pb.ReservationStatus {
 func MapPBStatusToDBStatus(pbStatus pb.ReservationStatus) string {
 	switch pbStatus {
 	case pb.ReservationStatus_RESERVATION_STATUS_PENDING:
-		return DBStatusPending
+		return constant.ReservationStatusPending
 	case pb.ReservationStatus_RESERVATION_STATUS_CONFIRMED:
-		return DBStatusConfirmed
+		return constant.ReservationStatusConfirmed
 	case pb.ReservationStatus_RESERVATION_STATUS_CANCELLED:
-		return DBStatusCancelled
+		return constant.ReservationStatusCancelled
 	default:
-		return DBStatusUnspecified
+		return constant.ReservationStatusUnspecified
 	}
 }
