@@ -9,8 +9,9 @@ import (
 type Product struct {
 	bun.BaseModel `bun:"table:products,alias:product"`
 	Base
-	Name  string `bun:"name,notnull"`
-	Stock int    `bun:"stock,notnull"`
+	Name  string  `bun:"name,notnull"`
+	Stock int     `bun:"stock,notnull"`
+	Price float64 `bun:"price,notnull"`
 }
 
 func (m *Product) ToDomain() *entity.Product {
@@ -27,6 +28,7 @@ func (m *Product) ToDomain() *entity.Product {
 		},
 		Name:  m.Name,
 		Stock: m.Stock,
+		Price: m.Price,
 	}
 }
 
@@ -62,6 +64,7 @@ func AsProduct(arg *entity.Product) *Product {
 		},
 		Name:  arg.Name,
 		Stock: arg.Stock,
+		Price: arg.Price,
 	}
 }
 

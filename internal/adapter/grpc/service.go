@@ -56,6 +56,7 @@ func (s *grpcService) ListProducts(ctx context.Context, req *pb.ListProductsRequ
 			Id:    product.Base.ID,
 			Name:  product.Name,
 			Stock: int32(product.Stock),
+			Price: product.Price,
 		}
 	}
 
@@ -72,6 +73,7 @@ func (s *grpcService) GetProduct(ctx context.Context, req *pb.GetProductRequest)
 		Id:    product.Base.ID,
 		Name:  product.Name,
 		Stock: int32(product.Stock),
+		Price: product.Price,
 	}, nil
 }
 
@@ -79,6 +81,7 @@ func (s *grpcService) CreateProduct(ctx context.Context, req *pb.CreateProductRe
 	productEntity := &entity.Product{
 		Name:  req.Name,
 		Stock: int(req.Stock),
+		Price: req.Price,
 	}
 
 	createdProduct, err := s.productService.Create(ctx, productEntity)
@@ -90,6 +93,7 @@ func (s *grpcService) CreateProduct(ctx context.Context, req *pb.CreateProductRe
 		Id:    createdProduct.Base.ID,
 		Name:  createdProduct.Name,
 		Stock: int32(createdProduct.Stock),
+		Price: createdProduct.Price,
 	}
 
 	return response, nil
@@ -100,6 +104,7 @@ func (s *grpcService) UpdateProduct(ctx context.Context, req *pb.UpdateProductRe
 		Base:  entity.Base{ID: req.Id},
 		Name:  req.Name,
 		Stock: int(req.Stock),
+		Price: req.Price,
 	}
 
 	updatedProduct, err := s.productService.Update(ctx, product)
@@ -111,6 +116,7 @@ func (s *grpcService) UpdateProduct(ctx context.Context, req *pb.UpdateProductRe
 		Id:    updatedProduct.Base.ID,
 		Name:  updatedProduct.Name,
 		Stock: int32(updatedProduct.Stock),
+		Price: updatedProduct.Price,
 	}, nil
 }
 
