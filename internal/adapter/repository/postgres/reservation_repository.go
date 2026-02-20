@@ -16,7 +16,7 @@ type ReservationRepository interface {
 	FindByID(ctx context.Context, id uint32) (*entity.Reservation, error)
 	Find(ctx context.Context, filter *FilterReservationPayload) ([]*entity.Reservation, int, error)
 	Create(ctx context.Context, reservation *entity.Reservation) (*entity.Reservation, error)
-	UpdateStatus(ctx context.Context, id uint32, status string) (*entity.Reservation, error)
+	UpdateStatus(ctx context.Context, ids []uint32, status string) error
 }
 
 type reservationRepository struct {
@@ -117,20 +117,19 @@ func (r *reservationRepository) Create(ctx context.Context, reservation *entity.
 	return dbReservation.ToDomain(), nil
 }
 
-func (r *reservationRepository) UpdateStatus(ctx context.Context, id uint32, status string) (*entity.Reservation, error) {
-	if id == 0 {
-		return nil, exception.ErrIDNull
+func (r *reservationRepository) UpdateStatus(ctx context.Context, ids []uint32, status string) error {
+	if len(ids) == 0 {
+		return exception.ErrIDNull
 	}
 
 	reservation := &model.Reservation{
-		Base:   model.Base{ID: id},
 		Status: status,
 	}
 
-	_, err := r.db.NewUpdate().Model(reservation).Column("status").WherePK().Exec(ctx)
+	_, err := r.db.NewUpdate().Model(reservation).Column("status").Where("id IN (?)", bun.In(ids)).Exec(ctx)
 	if err != nil {
-		return nil, exception.NewDBError(err, r.GetTableName(), "update reservation status")
+		return exception.NewDBError(err, r.GetTableName(), "update reservation status")
 	}
 
-	return r.FindByID(ctx, id)
+	return nil
 }

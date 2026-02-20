@@ -199,4 +199,12 @@ func (s *grpcService) GetReservation(ctx context.Context, req *pb.GetReservation
 	}, nil
 }
 
+func (s *grpcService) UpdateReservationStatus(ctx context.Context, req *pb.UpdateReservationStatusRequest) (*emptypb.Empty, error) {
+	status := MapPBStatusToDBStatus(req.Status)
+	if err := s.reservationService.UpdateStatus(ctx, req.Ids, status); err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 func (s *grpcService) mustEmbedUnimplementedInventoryServiceServer() {}

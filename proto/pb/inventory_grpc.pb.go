@@ -45,7 +45,7 @@ type InventoryServiceClient interface {
 	ListReservations(ctx context.Context, in *ListReservationsRequest, opts ...grpc.CallOption) (*ListReservationsResponse, error)
 	GetReservation(ctx context.Context, in *GetReservationRequest, opts ...grpc.CallOption) (*Reservation, error)
 	CreateReservation(ctx context.Context, in *CreateReservationRequest, opts ...grpc.CallOption) (*Reservation, error)
-	UpdateReservationStatus(ctx context.Context, in *UpdateReservationStatusRequest, opts ...grpc.CallOption) (*Reservation, error)
+	UpdateReservationStatus(ctx context.Context, in *UpdateReservationStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type inventoryServiceClient struct {
@@ -136,9 +136,9 @@ func (c *inventoryServiceClient) CreateReservation(ctx context.Context, in *Crea
 	return out, nil
 }
 
-func (c *inventoryServiceClient) UpdateReservationStatus(ctx context.Context, in *UpdateReservationStatusRequest, opts ...grpc.CallOption) (*Reservation, error) {
+func (c *inventoryServiceClient) UpdateReservationStatus(ctx context.Context, in *UpdateReservationStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Reservation)
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, InventoryService_UpdateReservationStatus_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -160,7 +160,7 @@ type InventoryServiceServer interface {
 	ListReservations(context.Context, *ListReservationsRequest) (*ListReservationsResponse, error)
 	GetReservation(context.Context, *GetReservationRequest) (*Reservation, error)
 	CreateReservation(context.Context, *CreateReservationRequest) (*Reservation, error)
-	UpdateReservationStatus(context.Context, *UpdateReservationStatusRequest) (*Reservation, error)
+	UpdateReservationStatus(context.Context, *UpdateReservationStatusRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedInventoryServiceServer()
 }
 
@@ -195,7 +195,7 @@ func (UnimplementedInventoryServiceServer) GetReservation(context.Context, *GetR
 func (UnimplementedInventoryServiceServer) CreateReservation(context.Context, *CreateReservationRequest) (*Reservation, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateReservation not implemented")
 }
-func (UnimplementedInventoryServiceServer) UpdateReservationStatus(context.Context, *UpdateReservationStatusRequest) (*Reservation, error) {
+func (UnimplementedInventoryServiceServer) UpdateReservationStatus(context.Context, *UpdateReservationStatusRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateReservationStatus not implemented")
 }
 func (UnimplementedInventoryServiceServer) mustEmbedUnimplementedInventoryServiceServer() {}

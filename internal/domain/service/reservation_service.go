@@ -15,7 +15,7 @@ type ReservationService interface {
 	Find(ctx context.Context, filter *postgresrepository.FilterReservationPayload) ([]*entity.Reservation, int, error)
 	FindByID(ctx context.Context, id uint32) (*entity.Reservation, error)
 	Create(ctx context.Context, reservation *entity.Reservation) (*entity.Reservation, error)
-	UpdateStatus(ctx context.Context, id uint32, status string) (*entity.Reservation, error)
+	UpdateStatus(ctx context.Context, ids []uint32, status string) error
 }
 
 type reservationService struct {
@@ -53,19 +53,15 @@ func (s *reservationService) Create(ctx context.Context, reservation *entity.Res
 	return createdReservation, nil
 }
 
-func (s *reservationService) UpdateStatus(ctx context.Context, id uint32, status string) (*entity.Reservation, error) {
-	var updatedReservation *entity.Reservation
-
+func (s *reservationService) UpdateStatus(ctx context.Context, ids []uint32, status string) error {
 	atomic := func(txRepo postgresrepository.PostgresRepository) error {
-		var err error
-		updatedReservation, err = txRepo.Reservation().UpdateStatus(ctx, id, status)
-		return err
+		return txRepo.Reservation().UpdateStatus(ctx, ids, status)
 	}
 
 	err := s.repo.Postgres().Atomic(ctx, s.config, atomic)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return updatedReservation, nil
+	return nil
 }

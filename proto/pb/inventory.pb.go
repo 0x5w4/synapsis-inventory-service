@@ -821,7 +821,7 @@ func (x *CreateReservationRequest) GetQuantity() int32 {
 
 type UpdateReservationStatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Ids           []uint32               `protobuf:"varint,1,rep,packed,name=ids,proto3" json:"ids,omitempty"`
 	Status        ReservationStatus      `protobuf:"varint,2,opt,name=status,proto3,enum=inventory.ReservationStatus" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -857,11 +857,11 @@ func (*UpdateReservationStatusRequest) Descriptor() ([]byte, []int) {
 	return file_proto_inventory_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *UpdateReservationStatusRequest) GetId() uint32 {
+func (x *UpdateReservationStatusRequest) GetIds() []uint32 {
 	if x != nil {
-		return x.Id
+		return x.Ids
 	}
-	return 0
+	return nil
 }
 
 func (x *UpdateReservationStatusRequest) GetStatus() ReservationStatus {
@@ -932,9 +932,9 @@ const file_proto_inventory_proto_rawDesc = "" +
 	"\n" +
 	"product_id\x18\x01 \x01(\rR\tproductId\x12\x19\n" +
 	"\border_id\x18\x02 \x01(\rR\aorderId\x12\x1a\n" +
-	"\bquantity\x18\x03 \x01(\x05R\bquantity\"f\n" +
-	"\x1eUpdateReservationStatusRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\rR\x02id\x124\n" +
+	"\bquantity\x18\x03 \x01(\x05R\bquantity\"h\n" +
+	"\x1eUpdateReservationStatusRequest\x12\x10\n" +
+	"\x03ids\x18\x01 \x03(\rR\x03ids\x124\n" +
 	"\x06status\x18\x02 \x01(\x0e2\x1c.inventory.ReservationStatusR\x06status*\x9b\x01\n" +
 	"\x11ReservationStatus\x12\"\n" +
 	"\x1eRESERVATION_STATUS_UNSPECIFIED\x10\x00\x12\x1e\n" +
@@ -951,7 +951,7 @@ const file_proto_inventory_proto_rawDesc = "" +
 	"\x10ListReservations\x12\".inventory.ListReservationsRequest\x1a#.inventory.ListReservationsResponse\x12J\n" +
 	"\x0eGetReservation\x12 .inventory.GetReservationRequest\x1a\x16.inventory.Reservation\x12P\n" +
 	"\x11CreateReservation\x12#.inventory.CreateReservationRequest\x1a\x16.inventory.Reservation\x12\\\n" +
-	"\x17UpdateReservationStatus\x12).inventory.UpdateReservationStatusRequest\x1a\x16.inventory.ReservationB\rZ\vproto/pb;pbb\x06proto3"
+	"\x17UpdateReservationStatus\x12).inventory.UpdateReservationStatusRequest\x1a\x16.google.protobuf.EmptyB\rZ\vproto/pb;pbb\x06proto3"
 
 var (
 	file_proto_inventory_proto_rawDescOnce sync.Once
@@ -1011,7 +1011,7 @@ var file_proto_inventory_proto_depIdxs = []int32{
 	10, // 22: inventory.InventoryService.ListReservations:output_type -> inventory.ListReservationsResponse
 	2,  // 23: inventory.InventoryService.GetReservation:output_type -> inventory.Reservation
 	2,  // 24: inventory.InventoryService.CreateReservation:output_type -> inventory.Reservation
-	2,  // 25: inventory.InventoryService.UpdateReservationStatus:output_type -> inventory.Reservation
+	15, // 25: inventory.InventoryService.UpdateReservationStatus:output_type -> google.protobuf.Empty
 	17, // [17:26] is the sub-list for method output_type
 	8,  // [8:17] is the sub-list for method input_type
 	8,  // [8:8] is the sub-list for extension type_name

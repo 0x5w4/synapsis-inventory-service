@@ -95,7 +95,7 @@ message CreateReservationRequest {
 }
 
 message UpdateReservationStatusRequest {
-  uint32 id = 1;
+  repeated uint32 ids = 1;
   ReservationStatus status = 2;
 }
 
@@ -113,5 +113,5 @@ service InventoryService {
   rpc ListReservations(ListReservationsRequest) returns (ListReservationsResponse);
   rpc GetReservation(GetReservationRequest) returns (Reservation);
   rpc CreateReservation(CreateReservationRequest) returns (Reservation);
-  rpc UpdateReservationStatus(UpdateReservationStatusRequest) returns (Reservation);
+  rpc UpdateReservationStatus(UpdateReservationStatusRequest) returns (google.protobuf.Empty);
 }
