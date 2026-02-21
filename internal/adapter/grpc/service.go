@@ -26,9 +26,15 @@ func NewGRPCService(
 	repo repository.Repository,
 	logger logger.Logger,
 ) (*grpcService, error) {
+	props := service.Properties{
+		Config: config,
+		Repo:   repo,
+		Logger: logger,
+	}
+
 	return &grpcService{
-		productService:     service.NewProductService(config, repo, logger),
-		reservationService: service.NewReservationService(config, repo, logger),
+		productService:     service.NewProductService(props),
+		reservationService: service.NewReservationService(props),
 	}, nil
 }
 

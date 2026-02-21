@@ -23,9 +23,14 @@ type PostgresRepository interface {
 	Reservation() ReservationRepository
 }
 
+type properties struct {
+	config *config.Config
+	db     bun.IDB
+	logger logger.Logger
+}
+
 type postgresRepository struct {
-	db                    bun.IDB
-	logger                logger.Logger
+	properties
 	productRepository     ProductRepository
 	reservationRepository ReservationRepository
 }
@@ -74,11 +79,16 @@ func (r *postgresRepository) Atomic(ctx context.Context, config *config.Config, 
 }
 
 func create(config *config.Config, db bun.IDB, logger logger.Logger) *postgresRepository {
+	props := properties{
+		config: config,
+		db:     db,
+		logger: logger,
+	}
+
 	return &postgresRepository{
-		db:                    db,
-		logger:                logger,
-		productRepository:     NewProductRepository(db, logger),
-		reservationRepository: NewReservationRepository(db, logger),
+		properties:            props,
+		productRepository:     NewProductRepository(props),
+		reservationRepository: NewReservationRepository(props),
 	}
 }
 

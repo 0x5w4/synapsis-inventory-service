@@ -5,7 +5,6 @@ import (
 	"inventory-service/internal/adapter/repository/postgres/model"
 	"inventory-service/internal/domain/entity"
 	"inventory-service/internal/shared/exception"
-	"inventory-service/pkg/logger"
 
 	"github.com/uptrace/bun"
 )
@@ -20,12 +19,11 @@ type ReservationRepository interface {
 }
 
 type reservationRepository struct {
-	db     bun.IDB
-	logger logger.Logger
+	properties
 }
 
-func NewReservationRepository(db bun.IDB, logger logger.Logger) *reservationRepository {
-	return &reservationRepository{db: db, logger: logger}
+func NewReservationRepository(props properties) *reservationRepository {
+	return &reservationRepository{properties: props}
 }
 
 func (r *reservationRepository) GetTableName() string {

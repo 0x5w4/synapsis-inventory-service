@@ -2,11 +2,8 @@ package service
 
 import (
 	"context"
-	"inventory-service/config"
-	"inventory-service/internal/adapter/repository"
 	postgresrepository "inventory-service/internal/adapter/repository/postgres"
 	"inventory-service/internal/domain/entity"
-	"inventory-service/pkg/logger"
 )
 
 var _ ReservationService = (*reservationService)(nil)
@@ -19,21 +16,19 @@ type ReservationService interface {
 }
 
 type reservationService struct {
-	config *config.Config
-	repo   repository.Repository
-	logger logger.Logger
+	Properties
 }
 
-func NewReservationService(config *config.Config, repo repository.Repository, logger logger.Logger) *reservationService {
-	return &reservationService{config: config, repo: repo, logger: logger}
+func NewReservationService(props Properties) *reservationService {
+	return &reservationService{Properties: props}
 }
 
 func (s *reservationService) Find(ctx context.Context, filter *postgresrepository.FilterReservationPayload) ([]*entity.Reservation, int, error) {
-	return s.repo.Postgres().Reservation().Find(ctx, filter)
+	return s.Repo.Postgres().Reservation().Find(ctx, filter)
 }
 
 func (s *reservationService) FindByID(ctx context.Context, id uint32) (*entity.Reservation, error) {
-	return s.repo.Postgres().Reservation().FindByID(ctx, id)
+	return s.Repo.Postgres().Reservation().FindByID(ctx, id)
 }
 
 func (s *reservationService) Create(ctx context.Context, reservation *entity.Reservation) (*entity.Reservation, error) {
@@ -45,7 +40,7 @@ func (s *reservationService) Create(ctx context.Context, reservation *entity.Res
 		return err
 	}
 
-	err := s.repo.Postgres().Atomic(ctx, s.config, atomic)
+	err := s.Repo.Postgres().Atomic(ctx, s.Config, atomic)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +53,7 @@ func (s *reservationService) UpdateStatus(ctx context.Context, ids []uint32, sta
 		return txRepo.Reservation().UpdateStatus(ctx, ids, status)
 	}
 
-	err := s.repo.Postgres().Atomic(ctx, s.config, atomic)
+	err := s.Repo.Postgres().Atomic(ctx, s.Config, atomic)
 	if err != nil {
 		return err
 	}

@@ -5,7 +5,6 @@ import (
 	"inventory-service/internal/adapter/repository/postgres/model"
 	"inventory-service/internal/domain/entity"
 	"inventory-service/internal/shared/exception"
-	"inventory-service/pkg/logger"
 
 	"github.com/uptrace/bun"
 )
@@ -21,12 +20,11 @@ type ProductRepository interface {
 }
 
 type productRepository struct {
-	db     bun.IDB
-	logger logger.Logger
+	properties
 }
 
-func NewProductRepository(db bun.IDB, logger logger.Logger) *productRepository {
-	return &productRepository{db: db, logger: logger}
+func NewProductRepository(props properties) *productRepository {
+	return &productRepository{properties: props}
 }
 
 func (r *productRepository) GetTableName() string {

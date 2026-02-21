@@ -12,6 +12,7 @@ require (
 	github.com/spf13/viper v1.21.0
 	github.com/uptrace/bun v1.2.16
 	github.com/uptrace/bun/dialect/pgdialect v1.2.16
+	go.elastic.co/apm/module/apmgrpc/v2 v2.7.3
 	go.elastic.co/apm/v2 v2.7.3
 	google.golang.org/grpc v1.78.0
 	google.golang.org/protobuf v1.36.11
@@ -56,6 +57,7 @@ require (
 	github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc // indirect
 	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
+	go.elastic.co/apm/module/apmhttp/v2 v2.7.3 // indirect
 	go.elastic.co/fastjson v1.5.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.64.0 // indirect
 	go.opentelemetry.io/otel v1.39.0 // indirect

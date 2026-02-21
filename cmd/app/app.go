@@ -10,12 +10,9 @@ import (
 	"inventory-service/pkg/apmtracer"
 	"inventory-service/pkg/bundb"
 	"inventory-service/pkg/logger"
-	"net"
 	"os"
 	"os/signal"
 	"syscall"
-
-	"inventory-service/proto/pb"
 
 	"google.golang.org/grpc"
 )
@@ -46,9 +43,7 @@ func (a *App) Run() error {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 	defer cancel()
 
-	var (
-		err error
-	)
+	var err error
 
 	a.tracer, err = apmtracer.NewApmTracer(&apmtracer.Config{
 		ServiceName:    a.config.Tracer.ServiceName,
@@ -65,43 +60,25 @@ func (a *App) Run() error {
 	if err != nil {
 		return fmt.Errorf("failed to setup repository: %w", err)
 	}
-
-	grpcService, err := grpcadapter.NewGRPCService(a.config, repo, a.logger)
-	if err != nil {
-		return fmt.Errorf("failed to setup gRPC service: %w", err)
-	}
-
-	grpcServer := grpc.NewServer(
-		grpc.UnaryInterceptor(grpcadapter.UnaryInterceptor(a.logger, a.tracer)),
-	)
-
-	pb.RegisterInventoryServiceServer(grpcServer, grpcService)
-
-	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", a.config.Grpc.Host, a.config.Grpc.Port))
-	if err != nil {
-		return fmt.Errorf("failed to create listener: %w", err)
-	}
-
-	go func() {
-		if err := grpcServer.Serve(listener); err != nil {
-			a.logger.Error().Err(err).Msg("Failed to start gRPC server")
-			cancel()
+	defer func() {
+		if err := repo.Close(); err != nil {
+			a.logger.Error().Err(err).Msg("Failed to gracefully close repository")
+		} else {
+			a.logger.Info().Msg("Repository closed gracefully")
 		}
 	}()
+
+	a.grpcServer, err = grpcadapter.NewGRPCServer(a.config, repo, a.logger)
+	if err != nil {
+		return fmt.Errorf("failed to setup gRPC server: %w", err)
+	}
 
 	a.logger.Info().Msgf("Server started at %s:%d", a.config.Grpc.Host, a.config.Grpc.Port)
 
 	<-ctx.Done()
 	a.logger.Info().Msg("Shutdown signal received, starting graceful shutdown...")
-
-	grpcServer.GracefulStop()
+	a.grpcServer.GracefulStop()
 	a.logger.Info().Msg("gRPC server shut down gracefully")
-
-	if err := repo.Close(); err != nil {
-		a.logger.Error().Err(err).Msg("Failed to gracefully close repository")
-	} else {
-		a.logger.Info().Msg("Repository closed gracefully")
-	}
 
 	if a.tracer != nil {
 		a.tracer.Shutdown()
