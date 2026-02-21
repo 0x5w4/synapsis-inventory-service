@@ -1,0 +1,27 @@
+all: false
+force-file-write: true
+formatter: goimports
+template: testify
+
+packages:
+  inventory-service/internal/adapter/repository:
+    config:
+      dir: ./mocks
+      filename: "mock_{{.InterfaceName}}.go"
+      pkgname: mocks
+      structname: "Mock{{.InterfaceName}}"
+
+    interfaces:
+      Repository: {}
+
+  inventory-service/internal/adapter/repository/postgres:
+    config:
+      dir: ./mocks
+      filename: "mock_{{.InterfaceName}}.go"
+      pkgname: mocks
+      structname: "Mock{{.InterfaceName}}"
+
+    interfaces:
+      PostgresRepository: {}
+      ProductRepository: {}
+      ReservationRepository: {}
