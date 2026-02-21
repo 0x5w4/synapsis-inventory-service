@@ -6,3 +6,8 @@ const (
 	ReservationStatusCancelled   = "CANCELLED"
 	ReservationStatusUnspecified = "UNSPECIFIED"
 )
+
+const (
+	CtxKeyRequestID = "request_id"
+	CtxKeySubLogger = "sub_logger"
+)

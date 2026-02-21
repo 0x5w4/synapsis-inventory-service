@@ -12,6 +12,7 @@ type Config struct {
 	Tracer   *TracerConfig
 	Postgres *DatabaseConfig
 	Grpc     *GRPCConfig
+	HTTP     *HTTPConfig
 }
 
 type AppConfig struct {
@@ -41,6 +42,14 @@ type DatabaseConfig struct {
 	ConnMaxLifetime    int
 	SlowQueryThreshold int
 	Debug              bool
+}
+
+type HTTPConfig struct {
+	Host               string
+	Port               int
+	BasePath           string
+	DomainName         string
+	EnableMigrationAPI bool
 }
 
 type GRPCConfig struct {
@@ -94,6 +103,13 @@ func LoadConfig(envPath string) (*Config, error) {
 		Grpc: &GRPCConfig{
 			Host: viper.GetString("GRPC_HOST"),
 			Port: viper.GetInt("GRPC_PORT"),
+		},
+		HTTP: &HTTPConfig{
+			Host:               viper.GetString("HTTP_HOST"),
+			Port:               viper.GetInt("HTTP_PORT"),
+			BasePath:           viper.GetString("HTTP_BASE_PATH"),
+			DomainName:         viper.GetString("HTTP_DOMAIN_NAME"),
+			EnableMigrationAPI: viper.GetBool("HTTP_ENABLE_MIGRATION_API"),
 		},
 	}
 
